@@ -1,0 +1,85 @@
+[
+  {
+    "order_id": "O001",
+    "ordered_at": "2026-09-01",
+    "status": "paid",
+    "customer": {
+      "id": "C01",
+      "city": "서울"
+    },
+    "items": [
+      {
+        "product_id": "P001",
+        "qty": 2
+      },
+      {
+        "product_id": "P002",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "order_id": "O002",
+    "ordered_at": "2026-09-02",
+    "status": "paid",
+    "customer": {
+      "id": "C02",
+      "city": "부산"
+    },
+    "items": [
+      {
+        "product_id": "P003",
+        "qty": 3
+      }
+    ]
+  },
+  {
+    "order_id": "O003",
+    "ordered_at": "2026-09-03",
+    "status": "refunded",
+    "customer": {
+      "id": "C01",
+      "city": "서울"
+    },
+    "items": [
+      {
+        "product_id": "P001",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "order_id": "O004",
+    "ordered_at": "2026-09-04",
+    "status": "paid",
+    "customer": {
+      "id": "C03",
+      "city": "대전"
+    },
+    "items": [
+      {
+        "product_id": "P002",
+        "qty": 2
+      },
+      {
+        "product_id": "P003",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "order_id": "O005",
+    "ordered_at": "2026-09-05",
+    "status": "paid",
+    "customer": {
+      "id": "C04",
+      "city": "서울"
+    },
+    "items": [
+      {
+        "product_id": "P001",
+        "qty": 1
+      }
+    ]
+  }
+]

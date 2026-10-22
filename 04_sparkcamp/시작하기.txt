@@ -1,0 +1,57 @@
+Apache Spark 처음부터 — 직접 치면서 배우는 분산 처리 (1과목)
+
+준비물: Windows 노트북 · Java 17 · Python 3.13 · VS Code
+자세한 화면 설명은 수업진행서 STEP 01 ~ 03 에 있습니다.
+
+1. 이 폴더를 C:\sparkcamp 로 둡니다.
+   - C:\sparkcamp\sparkcamp 처럼 두 겹이 되면 안 됩니다.
+   - 바탕 화면·문서·OneDrive 아래, 한글·공백 경로는 피하세요.
+
+2. Java 17 (Temurin, adoptium.net) 을 설치합니다.                   → STEP 01
+   - 설치 화면에서 [Set JAVA_HOME variable] 을 반드시 켭니다.
+   - 설치 위치는 기본값 그대로 둡니다.
+   - PowerShell 을 새로 열어 확인:
+       java -version        → 17 이 보이면 성공
+       $env:JAVA_HOME       → C:\Program Files\Eclipse Adoptium\jdk-17.…-hotspot\
+     아무것도 안 나오면 수업진행서 STEP 01 의 주황 박스 ⑤.
+
+3. Python 3.13 · VS Code(+ Python, Jupyter 확장) 를 설치합니다.     → STEP 02
+   - Python 설치 첫 화면에서 [Add python.exe to PATH] 체크.
+
+4. VS Code 에서 [파일 → 폴더 열기] → C:\sparkcamp
+   터미널(Ctrl+`)에서 가상환경을 만듭니다.
+     py -3.13 -m venv .venv
+
+   그 다음 둘 중 하나로 설치합니다.
+
+   ▶ 인터넷이 될 때 (보통)
+     .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+
+   ▶ 강사가 USB 로 wheels 폴더를 나눠 줬을 때
+     (wheels 폴더를 C:\sparkcamp\wheels 에 넣은 뒤)
+     .\.venv\Scripts\python.exe -m pip install -r requirements.txt --no-index --find-links C:\sparkcamp\wheels
+
+   마지막으로 실습 데이터를 만듭니다.
+     .\.venv\Scripts\python.exe make_data.py
+
+5. tools\hadoop 폴더를 C:\ 에 복사합니다 (C:\hadoop\bin\winutils.exe 가 되게).  → STEP 03
+   환경 변수 HADOOP_HOME = C:\hadoop 을 만들고,
+   Path 에 %HADOOP_HOME%\bin 을 추가한 뒤 VS Code 를 다시 켭니다.
+
+6. 오른쪽 아래 인터프리터를 3.13.x ('.venv') 로 고르고 lab\s03_first_run.py 를 엽니다.
+
+실행 규칙
+- 셀 안에 커서를 두고 Shift+Enter. F5 는 쓰지 않습니다.
+- 셀은 위에서부터 순서대로. 파일을 바꾸면 이전 Interactive 창은 닫습니다.
+- [초기화] 셀은 그 STEP 을 처음부터 다시 할 때만 실행합니다.
+- [바꿔 보기] 셀은 값을 바꿔 보고 "어떻게 보이고, 왜 그런지" 확인하는 칸입니다.
+- 오류는 맨 아래 한 줄부터, 모르겠으면 위로 올라가 "Caused by:" 줄.
+- lab 은 문제(빈칸), answer 는 정답(결과 주석 포함). 먼저 혼자 쓴 다음에 answer 를 엽니다.
+
+패키지를 다시 깔거나 바꿀 때
+- 먼저 Interactive 창을 전부 닫습니다 (Spark 가 켜져 있으면 [WinError 32] 가 납니다).
+- 그래도 같은 오류면 터미널에서:
+    Get-Process java -ErrorAction SilentlyContinue | Stop-Process -Force
+  그 다음 다시 설치합니다.
+
+data 폴더는 없는 게 정상입니다. 4번의 make_data.py 가 만듭니다.

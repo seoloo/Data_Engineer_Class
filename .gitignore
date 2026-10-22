@@ -1,0 +1,26 @@
+# Virtualenvs
+.venv*/
+venv/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Spark / generated output
+spark-warehouse/
+metastore_db/
+derby.log
+*.crc
+04_sparkcamp/tmp/
+04_sparkcamp/out/
+
+# Local DB / secrets
+db.sqlite3
+.env
+
+# OS / editor
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/

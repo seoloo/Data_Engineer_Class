@@ -1,0 +1,67 @@
+{
+  "resultCode": "00",
+  "resultMsg": "정상",
+  "totalCount": 6,
+  "items": [
+    {
+      "goodsCode": "0001",
+      "goodsName": "차렵 이불세트 기본형",
+      "categoryName": "침구",
+      "unitPrice": 7900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "N",
+      "regDate": "2023-01-30"
+    },
+    {
+      "goodsCode": "0002",
+      "goodsName": "주방가위 소형",
+      "categoryName": "주방",
+      "unitPrice": 5900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2024/01/23"
+    },
+    {
+      "goodsCode": "0003",
+      "goodsName": "경추 베개 소형",
+      "categoryName": "침구",
+      "unitPrice": 22.15,
+      "currency": "USD",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2023-04-18"
+    },
+    {
+      "goodsCode": "0004",
+      "goodsName": "차렵 이불세트 2입",
+      "categoryName": "침구",
+      "unitPrice": 19900,
+      "currency": "KRW",
+      "taxType": "Z",
+      "useYn": "Y",
+      "regDate": "2021/05/29"
+    },
+    {
+      "goodsCode": "0005",
+      "goodsName": "경추 베개 대형",
+      "categoryName": "침구",
+      "unitPrice": 15900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "N",
+      "regDate": "2025-01-25"
+    },
+    {
+      "goodsCode": "0006",
+      "goodsName": "극세사 걸레 대형",
+      "categoryName": "청소",
+      "unitPrice": 5900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2024-11-01"
+    }
+  ]
+}

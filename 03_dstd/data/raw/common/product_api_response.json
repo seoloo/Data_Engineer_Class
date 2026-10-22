@@ -1,0 +1,807 @@
+{
+  "resultCode": "00",
+  "resultMsg": "정상",
+  "totalCount": 80,
+  "items": [
+    {
+      "goodsCode": "0001",
+      "goodsName": "미끄럼방지 테이프 소형",
+      "categoryName": "생활잡화",
+      "unitPrice": 39900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "N",
+      "regDate": "2023-11-19"
+    },
+    {
+      "goodsCode": "0002",
+      "goodsName": "샤워 헤드 프리미엄",
+      "categoryName": "욕실",
+      "unitPrice": 15900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "20230318"
+    },
+    {
+      "goodsCode": "0003",
+      "goodsName": "먼지떨이 소형",
+      "categoryName": "청소",
+      "unitPrice": 3900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2025-02-14"
+    },
+    {
+      "goodsCode": "0004",
+      "goodsName": "수건걸이 리필",
+      "categoryName": "욕실",
+      "unitPrice": 19900,
+      "currency": "KRW",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2025-09-07"
+    },
+    {
+      "goodsCode": "0005",
+      "goodsName": "비누 디스펜서 4입",
+      "categoryName": "욕실",
+      "unitPrice": 49900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2022-05-13"
+    },
+    {
+      "goodsCode": "0006",
+      "goodsName": "대나무 도마 리필",
+      "categoryName": "주방",
+      "unitPrice": 29900,
+      "currency": "KRW",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2024-08-29"
+    },
+    {
+      "goodsCode": "0007",
+      "goodsName": "다용도 솔 4입",
+      "categoryName": "청소",
+      "unitPrice": 29900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2024-12-05"
+    },
+    {
+      "goodsCode": "0008",
+      "goodsName": "LED 무드등 대형",
+      "categoryName": "생활잡화",
+      "unitPrice": 9900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2023/02/15"
+    },
+    {
+      "goodsCode": "0009",
+      "goodsName": "구스 베개 리필",
+      "categoryName": "침구",
+      "unitPrice": 7900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "N",
+      "regDate": "2022-06-12"
+    },
+    {
+      "goodsCode": "0010",
+      "goodsName": "매트리스 커버 기본형",
+      "categoryName": "침구",
+      "unitPrice": 49900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "20250322"
+    },
+    {
+      "goodsCode": "0011",
+      "goodsName": "LED 무드등 중형",
+      "categoryName": "생활잡화",
+      "unitPrice": 5900,
+      "currency": "KRW",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "20230409"
+    },
+    {
+      "goodsCode": "0012",
+      "goodsName": "우산꽂이 대형",
+      "categoryName": "생활잡화",
+      "unitPrice": 9900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2025/06/22"
+    },
+    {
+      "goodsCode": "0013",
+      "goodsName": "다용도 바구니 중형",
+      "categoryName": "수납",
+      "unitPrice": 22.15,
+      "currency": "USD",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2024-04-05"
+    },
+    {
+      "goodsCode": "0014",
+      "goodsName": "다용도 바구니 프리미엄",
+      "categoryName": "수납",
+      "unitPrice": 9900,
+      "currency": "KRW",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2022/02/16"
+    },
+    {
+      "goodsCode": "0015",
+      "goodsName": "옷걸이 세트 소형",
+      "categoryName": "수납",
+      "unitPrice": 29900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2021-11-12"
+    },
+    {
+      "goodsCode": "0016",
+      "goodsName": "계량컵 세트 중형",
+      "categoryName": "주방",
+      "unitPrice": 39900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2024/05/02"
+    },
+    {
+      "goodsCode": "0017",
+      "goodsName": "투명 리빙박스 기본형",
+      "categoryName": "수납",
+      "unitPrice": 49900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2026-02-14"
+    },
+    {
+      "goodsCode": "0018",
+      "goodsName": "미끄럼방지 테이프 기본형",
+      "categoryName": "생활잡화",
+      "unitPrice": 29900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2021-12-08"
+    },
+    {
+      "goodsCode": "0019",
+      "goodsName": "미끄럼방지 테이프 중형",
+      "categoryName": "생활잡화",
+      "unitPrice": 5900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2025-02-16"
+    },
+    {
+      "goodsCode": "0020",
+      "goodsName": "스테인리스 냄비 대형",
+      "categoryName": "주방",
+      "unitPrice": 7900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2022/01/09"
+    },
+    {
+      "goodsCode": "0021",
+      "goodsName": "유리 밀폐용기 소형",
+      "categoryName": "주방",
+      "unitPrice": 24900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2023/05/20"
+    },
+    {
+      "goodsCode": "0022",
+      "goodsName": "라텍스 토퍼 중형",
+      "categoryName": "침구",
+      "unitPrice": 7900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2024-03-04"
+    },
+    {
+      "goodsCode": "0023",
+      "goodsName": "극세사 걸레 2입",
+      "categoryName": "청소",
+      "unitPrice": 29900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2024-11-22"
+    },
+    {
+      "goodsCode": "0024",
+      "goodsName": "구스 베개 프리미엄",
+      "categoryName": "침구",
+      "unitPrice": 9900,
+      "currency": "KRW",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2022-10-19"
+    },
+    {
+      "goodsCode": "0025",
+      "goodsName": "빨래건조대 프리미엄",
+      "categoryName": "생활잡화",
+      "unitPrice": 9900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2024-05-15"
+    },
+    {
+      "goodsCode": "0026",
+      "goodsName": "매트리스 커버 2입",
+      "categoryName": "침구",
+      "unitPrice": 19900,
+      "currency": "KRW",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2024-07-01"
+    },
+    {
+      "goodsCode": "0027",
+      "goodsName": "정전기 청소포 프리미엄",
+      "categoryName": "청소",
+      "unitPrice": 3900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2022-07-04"
+    },
+    {
+      "goodsCode": "0028",
+      "goodsName": "대나무 도마 기본형",
+      "categoryName": "주방",
+      "unitPrice": 29900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2025-03-11"
+    },
+    {
+      "goodsCode": "0029",
+      "goodsName": "다용도 후크 중형",
+      "categoryName": "생활잡화",
+      "unitPrice": 24900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2022/04/25"
+    },
+    {
+      "goodsCode": "0030",
+      "goodsName": "창틀 브러시 프리미엄",
+      "categoryName": "청소",
+      "unitPrice": 39900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2023-11-02"
+    },
+    {
+      "goodsCode": "0031",
+      "goodsName": "매트리스 커버 프리미엄",
+      "categoryName": "침구",
+      "unitPrice": 29900,
+      "currency": "KRW",
+      "taxType": "Z",
+      "useYn": "Y",
+      "regDate": "2021-01-04"
+    },
+    {
+      "goodsCode": "0032",
+      "goodsName": "빨래건조대 리필",
+      "categoryName": "생활잡화",
+      "unitPrice": 15900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2022/04/05"
+    },
+    {
+      "goodsCode": "0033",
+      "goodsName": "배수구 트랩 대형",
+      "categoryName": "욕실",
+      "unitPrice": 9900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "N",
+      "regDate": "2025-08-14"
+    },
+    {
+      "goodsCode": "0034",
+      "goodsName": "스팀 청소포 리필",
+      "categoryName": "청소",
+      "unitPrice": 15900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2025-07-19"
+    },
+    {
+      "goodsCode": "0035",
+      "goodsName": "차렵 이불세트 대형",
+      "categoryName": "침구",
+      "unitPrice": 5900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2026/01/23"
+    },
+    {
+      "goodsCode": "0036",
+      "goodsName": "여름 인견 패드 기본형",
+      "categoryName": "침구",
+      "unitPrice": 24900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2025/09/25"
+    },
+    {
+      "goodsCode": "0037",
+      "goodsName": "논슬립 욕실매트 중형",
+      "categoryName": "욕실",
+      "unitPrice": 15900,
+      "currency": "KRW",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2021-04-15"
+    },
+    {
+      "goodsCode": "0038",
+      "goodsName": "대나무 도마 4입",
+      "categoryName": "주방",
+      "unitPrice": 5900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "N",
+      "regDate": "20230101"
+    },
+    {
+      "goodsCode": "0039",
+      "goodsName": "대나무 도마 중형",
+      "categoryName": "주방",
+      "unitPrice": 3900,
+      "currency": "KRW",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2024-07-07"
+    },
+    {
+      "goodsCode": "0040",
+      "goodsName": "스테인리스 냄비 기본형",
+      "categoryName": "주방",
+      "unitPrice": 49900,
+      "currency": "KRW",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2026/04/10"
+    },
+    {
+      "goodsCode": "0041",
+      "goodsName": "먼지떨이 4입",
+      "categoryName": "청소",
+      "unitPrice": 18.44,
+      "currency": "USD",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2021-08-12"
+    },
+    {
+      "goodsCode": "0042",
+      "goodsName": "논슬립 욕실매트 소형",
+      "categoryName": "욕실",
+      "unitPrice": 59900,
+      "currency": "KRW",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2022-02-10"
+    },
+    {
+      "goodsCode": "0043",
+      "goodsName": "빨래건조대 중형",
+      "categoryName": "생활잡화",
+      "unitPrice": 39900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2023-11-06"
+    },
+    {
+      "goodsCode": "0044",
+      "goodsName": "돌돌이 클리너 중형",
+      "categoryName": "청소",
+      "unitPrice": 29900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "20251225"
+    },
+    {
+      "goodsCode": "0045",
+      "goodsName": "신발 정리대 2입",
+      "categoryName": "수납",
+      "unitPrice": 49900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2021/01/27"
+    },
+    {
+      "goodsCode": "0046",
+      "goodsName": "극세사 이불 4입",
+      "categoryName": "침구",
+      "unitPrice": 49900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2021-12-02"
+    },
+    {
+      "goodsCode": "0047",
+      "goodsName": "먼지떨이 리필",
+      "categoryName": "청소",
+      "unitPrice": 15900,
+      "currency": "KRW",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2023-10-16"
+    },
+    {
+      "goodsCode": "0048",
+      "goodsName": "돌돌이 클리너 리필",
+      "categoryName": "청소",
+      "unitPrice": 9900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "20221127"
+    },
+    {
+      "goodsCode": "0049",
+      "goodsName": "돌돌이 클리너 기본형",
+      "categoryName": "청소",
+      "unitPrice": 5900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "20231221"
+    },
+    {
+      "goodsCode": "0050",
+      "goodsName": "서랍 정리함 소형",
+      "categoryName": "수납",
+      "unitPrice": 39900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2022-12-14"
+    },
+    {
+      "goodsCode": "0051",
+      "goodsName": "코너 선반 기본형",
+      "categoryName": "욕실",
+      "unitPrice": 22.15,
+      "currency": "USD",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2024-04-03"
+    },
+    {
+      "goodsCode": "0052",
+      "goodsName": "다용도 솔 중형",
+      "categoryName": "청소",
+      "unitPrice": 12900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2025-05-07"
+    },
+    {
+      "goodsCode": "0053",
+      "goodsName": "차렵 이불세트 중형",
+      "categoryName": "침구",
+      "unitPrice": 29900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2024-11-19"
+    },
+    {
+      "goodsCode": "0054",
+      "goodsName": "샤워 헤드 대형",
+      "categoryName": "욕실",
+      "unitPrice": 7900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2021-09-27"
+    },
+    {
+      "goodsCode": "0055",
+      "goodsName": "다용도 후크 기본형",
+      "categoryName": "생활잡화",
+      "unitPrice": 11.78,
+      "currency": "USD",
+      "taxType": "TAX",
+      "useYn": "N",
+      "regDate": "2023/08/23"
+    },
+    {
+      "goodsCode": "0056",
+      "goodsName": "돌돌이 클리너 2입",
+      "categoryName": "청소",
+      "unitPrice": 59900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2023-07-19"
+    },
+    {
+      "goodsCode": "0057",
+      "goodsName": "투명 리빙박스 대형",
+      "categoryName": "수납",
+      "unitPrice": 9900,
+      "currency": "KRW",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2023-12-08"
+    },
+    {
+      "goodsCode": "0058",
+      "goodsName": "계량컵 세트 프리미엄",
+      "categoryName": "주방",
+      "unitPrice": 39900,
+      "currency": "KRW",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2025/09/13"
+    },
+    {
+      "goodsCode": "0059",
+      "goodsName": "돌돌이 클리너 대형",
+      "categoryName": "청소",
+      "unitPrice": 59900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2022-10-12"
+    },
+    {
+      "goodsCode": "0060",
+      "goodsName": "경추 베개 4입",
+      "categoryName": "침구",
+      "unitPrice": 5900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2023/10/02"
+    },
+    {
+      "goodsCode": "0061",
+      "goodsName": "주방가위 중형",
+      "categoryName": "주방",
+      "unitPrice": 9900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2021-02-28"
+    },
+    {
+      "goodsCode": "0062",
+      "goodsName": "경추 베개 기본형",
+      "categoryName": "침구",
+      "unitPrice": 9900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2023-12-10"
+    },
+    {
+      "goodsCode": "0063",
+      "goodsName": "창틀 브러시 소형",
+      "categoryName": "청소",
+      "unitPrice": 7900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2023-06-06"
+    },
+    {
+      "goodsCode": "0064",
+      "goodsName": "계량컵 세트 대형",
+      "categoryName": "주방",
+      "unitPrice": 3900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "20240508"
+    },
+    {
+      "goodsCode": "0065",
+      "goodsName": "진공 압축팩 소형",
+      "categoryName": "수납",
+      "unitPrice": 3900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2021-12-11"
+    },
+    {
+      "goodsCode": "0066",
+      "goodsName": "접이식 수납박스 중형",
+      "categoryName": "수납",
+      "unitPrice": 49900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "N",
+      "regDate": "2021-11-26"
+    },
+    {
+      "goodsCode": "0067",
+      "goodsName": "스팀 청소포 기본형",
+      "categoryName": "청소",
+      "unitPrice": 49900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2025-06-02"
+    },
+    {
+      "goodsCode": "0068",
+      "goodsName": "문틈 방풍패킹 중형",
+      "categoryName": "생활잡화",
+      "unitPrice": 39900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "12-03-2025"
+    },
+    {
+      "goodsCode": "0069",
+      "goodsName": "문틈 방풍패킹 4입",
+      "categoryName": "생활잡화",
+      "unitPrice": 5900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2024-09-08"
+    },
+    {
+      "goodsCode": "0070",
+      "goodsName": "구스 베개 중형",
+      "categoryName": "침구",
+      "unitPrice": 3900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2023-07-30"
+    },
+    {
+      "goodsCode": "0071",
+      "goodsName": "접이식 수납박스 리필",
+      "categoryName": "수납",
+      "unitPrice": 39900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2025-10-14"
+    },
+    {
+      "goodsCode": "0072",
+      "goodsName": "다용도 바구니 대형",
+      "categoryName": "수납",
+      "unitPrice": 19900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2023-06-23"
+    },
+    {
+      "goodsCode": "0073",
+      "goodsName": "배수구 트랩 프리미엄",
+      "categoryName": "욕실",
+      "unitPrice": 4.37,
+      "currency": "USD",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2025/04/27"
+    },
+    {
+      "goodsCode": "0074",
+      "goodsName": "서랍 정리함 2입",
+      "categoryName": "수납",
+      "unitPrice": 29.56,
+      "currency": "USD",
+      "taxType": "FREE",
+      "useYn": "Y",
+      "regDate": "2023-08-25"
+    },
+    {
+      "goodsCode": "0075",
+      "goodsName": "극세사 걸레 소형",
+      "categoryName": "청소",
+      "unitPrice": 15900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2021-04-26"
+    },
+    {
+      "goodsCode": "0076",
+      "goodsName": "라텍스 토퍼 소형",
+      "categoryName": "침구",
+      "unitPrice": 24900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2021-02-17"
+    },
+    {
+      "goodsCode": "0077",
+      "goodsName": "먼지떨이 대형",
+      "categoryName": "청소",
+      "unitPrice": 39900,
+      "currency": "KRW",
+      "taxType": "Z",
+      "useYn": "Y",
+      "regDate": "20230110"
+    },
+    {
+      "goodsCode": "0078",
+      "goodsName": "LED 무드등 프리미엄",
+      "categoryName": "생활잡화",
+      "unitPrice": 19900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "20250929"
+    },
+    {
+      "goodsCode": "0079",
+      "goodsName": "스팀 청소포 4입",
+      "categoryName": "청소",
+      "unitPrice": 29900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2024-08-07"
+    },
+    {
+      "goodsCode": "0080",
+      "goodsName": "여름 인견 패드 프리미엄",
+      "categoryName": "침구",
+      "unitPrice": 7900,
+      "currency": "KRW",
+      "taxType": "TAX",
+      "useYn": "Y",
+      "regDate": "2021-07-21"
+    }
+  ]
+}

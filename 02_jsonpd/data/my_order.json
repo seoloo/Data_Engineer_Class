@@ -1,0 +1,10 @@
+{
+  "order_id": "O001",
+  "city": "서울",
+  "paid": true,
+  "memo": null,
+  "items": [
+    "노트",
+    "펜"
+  ]
+}

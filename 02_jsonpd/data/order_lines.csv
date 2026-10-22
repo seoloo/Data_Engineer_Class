@@ -1,0 +1,8 @@
+order_id,ordered_at,status,customer_id,city,product_id,qty
+O001,2026-09-01,paid,C01,서울,P001,2
+O001,2026-09-01,paid,C01,서울,P002,1
+O002,2026-09-02,paid,C02,부산,P003,3
+O003,2026-09-03,refunded,C01,서울,P001,1
+O004,2026-09-04,paid,C03,대전,P002,2
+O004,2026-09-04,paid,C03,대전,P003,1
+O005,2026-09-05,paid,C04,서울,P001,1

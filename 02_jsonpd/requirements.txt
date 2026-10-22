@@ -1,0 +1,4 @@
+pandas==3.0.5
+matplotlib==3.10.8
+requests==2.33.1
+ipykernel==7.3.0

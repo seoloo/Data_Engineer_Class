@@ -1,0 +1,4 @@
+product_id,qty,order_id,ordered_at,status,customer.id,customer.city,qty_num,date
+P001,,O004,2026-09-04,paid,C04,서울,,2026-09-04
+P003,두개,O005,2026-09-05,paid,C05,부산,,2026-09-05
+P001,1,O006,2026-02-30,paid,C06,대전,1.0,
