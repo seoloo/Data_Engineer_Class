@@ -12,6 +12,7 @@
 | [04_sparkcamp](04_sparkcamp) | 2026-10-20 ~ | 수업 중 | Apache Spark | DataFrame, 스키마, groupBy, 시간, join, Spark SQL, 시간 창, 정제, 파티션, Parquet, Delta, Streaming (s03~s20) |
 
 - `04_sparkcamp/lab` 은 내가 푼 실습, `04_sparkcamp/answer` 는 정답입니다.
+- Spark STEP 03~14의 `lab`에는 각 셀의 목적과 함수 동작을 설명하는 `# [셀 설명]`, `# [동작]` 주석이 있습니다. 미작성 셀의 실습 의도와 현재 코드에서 확인할 점도 함께 적었습니다.
 - 과목 오리엔테이션 슬라이드 등 강의 자료는 [class_materials](class_materials)에 있습니다.
 - 실행 환경 준비는 각 폴더의 `시작하기` 문서와 [setup/hadoop.md](setup/hadoop.md)를 보세요.
 
