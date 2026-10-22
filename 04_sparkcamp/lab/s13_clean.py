@@ -29,8 +29,8 @@ print(raw.count(), st.count())
 
 
 # %% [13-1] 원본(raw)의 줄 수와 이벤트 번호 가짓수를 다시 확인하십시오.
-print(raw.count(), raw.select("event_id").count())
-print(raw.count(), raw.select("event_id").count(), "개의 차이")
+print(raw.count(), raw.select("event_id").distinct().count())
+print(raw.count()-raw.select("event_id").distinct().count(), "개의 차이")
 
 
 
@@ -56,50 +56,92 @@ print(raw.dropDuplicates(["card_id"]).count())
 # %% [13-3] 격리 조건을 하나의 변수로 만드십시오 — 역 코드가 비어 있거나, 등록 안 된 역이거나, 태그 시각이 비어 있으면 격리.
 valid_ids = [r.station_id for r in st.select("station_id").collect()]
 print(valid_ids)
+is_bad = ((F.col("station_id").isNull()) |
+          (~F.col("station_id").isin(valid_ids)) |
+          (F.col("tag_time").isNull()))
+
 
 
 
 # %% [13-4] 격리 바구니 quarantine 을 만들고, 이유(reason) 칸을 붙여 이유별로 세십시오.
+# reason - 1.BAD_TIME / 2. UNKNWON_STATION
+
+quarantine = dedup.filter(is_bad).withColumn(
+    "reason", 
+    F.when(F.col("station_id").isNull() | ~F.col("station_id").isin(valid_ids), "UNKNOWN_STATION").otherwise("BAD_TIME"))
+
+quarantine.groupBy("reason").count().show()
 
 
 
 
 # %% [13-5] 정상 바구니 clean 을 만들고 세십시오.
-
-
+clean = dedup.filter(~is_bad)
+clean.count()
 
 
 # %% [13-6] 한 줄도 잃어버리지 않았는지 더해서 확인하십시오.
-
+n_raw, n_dup = raw.count(), raw.count() - dedup.count()
+n_q, n_ok = quarantine.count(), clean.count()
+print(f"원본 {n_raw} = 중복 {n_dup} + 격리 {n_q} + 정상 {n_ok} -> {n_dup + n_q + n_ok}")
+print("일치" if n_raw == n_dup + n_q + n_ok else "불일치")
 
 
 
 # %% [13-7] 짝 맞추기 — 정상 이벤트에서 승차 표와 하차 표를 따로 만들고, trip_id 로 붙여 trips 를 만드십시오.
+board = clean.filter(F.col("tag_type") == "IN")     \
+    .select("trip_id", "card_id", F.col("station_id").alias("board_st"),
+                F.col("tag_time").alias("board_time"))
 
+alight = clean.filter(F.col("tag_type") == "OUT")           \
+    .select("trip_id", F.col("station_id").alias("alight_st"),
+            F.col("tag_time").alias("alight_time"), "fare")
 
+trips = board.join(alight, "trip_id", "left")
+trips.orderBy("trip_id").show()
 
 
 # %% [13-8] 이동이 몇 건인지, 그중 아직 하차 기록이 없는 이동이 몇 건인지 세십시오.
-
-
+print(trips.count())
+trips.filter(F.col("alight_st").isNull()).count()
 
 
 # %% [13-9] 이동 시간(분)을 travel_min 칸으로 만들고, 평균 · 최소 · 최대를 구하십시오.
+trips = trips.withColumn("travel_min",
+            F.round((F.unix_timestamp("alight_time") - F.unix_timestamp("board_time")) / 60, 1))
 
-
-
+trips.agg(F.round(F.avg("travel_min"), 1).alias("avg"),
+            F.min("travel_min").alias("min"),
+            F.min("travel_min").alias("max")).show()
 
 # %% [13-10] 하차는 있는데 승차가 없는 이동이 있는지 찾으십시오. (승차 태그가 S99 로 격리된 경우)
-
-
+orphan = alight.join(board, "trip_id", "left_anti")
+print(orphan.count())
+orphan.show()
 
 
 # %% [13-11] 같은 질문, 다른 답 — 역별 승차 인원을 원본(raw)과 정상(clean)에서 각각 구해 나란히 보십시오.
+def board_count(df, name):
+    return df.filter(F.col("tag_type") == "IN").groupBy("station_id")       \
+        .agg(F.count("*").alias(name))
 
+board_count(raw, "raw_cnt").join(board_count(clean, "clean_cnt"), "station_id", "left") \
+    .orderBy("station_id").show()
 
 
 
 # %% [13-12] 정상 이벤트 기준으로 오늘의 기준 숫자 네 개를 구하십시오 — 승차 수 · 하차 수 · 요금 합계 · 이동 수.
+summary = clean.agg(
+    F.sum(
+        F.when(
+            F.col("tag_type") == "IN", 1).otherwise(0)).alias("board"),
+    F.sum(
+        F.when(
+            F.col("tag_type") == "OUT", 1).otherwise(0)).alias("alight"),
+    F.sum("fare").alias("fare_sum"))
+
+summary.show()
+print("trips : ", trips.count())
 
 
 
