@@ -35,3 +35,7 @@ git push
 - `sync.ps1`은 원본 폴더를 미러링합니다 (원본에서 지운 파일은 저장소에서도 지워집니다).
 - 가상환경(`.venv`), `__pycache__`, Spark 실행 결과(`out`, `tmp`, `spark-warehouse`), `db.sqlite3`, `.env`, `exe/dll`은 복사하지 않습니다.
 - 새 과목이 생기면 `sync.ps1`의 `$Map`에 `'C:\새폴더' = '05_새폴더'` 한 줄을 추가합니다.
+
+## AI 에이전트용 안내
+
+에이전트(Claude Code, Codex 등)가 따를 규칙, 구조, 일별 기록 양식은 [AGENTS.md](AGENTS.md)에 있습니다.
