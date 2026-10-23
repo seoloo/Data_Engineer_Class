@@ -48,27 +48,34 @@ print("out/s15 비움")
 
 
 # %% [15-1] 정상 이벤트(clean)를 CSV 로 저장하고 폴더 안을 보십시오. 머리글도 넣으십시오.
+clean.write.csv("out/s15/clean_csv", header=True)
+ls("out/s15/clean_csv")
 
-
+# 덮어쓰기
+# clean.write.mode("overwrite").csv("out/s15/clean_csv", header=True)
 
 
 # %% [15-2] 저장한 CSV 를 다시 읽어 스키마를 보십시오.
-
+spark.read.csv("out/s15/clean_csv",header=True).printSchema()
 
 
 
 # %% [15-3] 같은 clean 을 Parquet 으로 저장하고 폴더 안을 보십시오.
-
+clean.write.parquet("out/s15/clean_parquet")
+ls("out/s15/clean_parquet")
 
 
 
 # %% [15-4] Parquet 을 다시 읽어 스키마와 줄 수를 보십시오.
-
+pq = spark.read.parquet("out/s15/clean_parquet")
+pq.printSchema()
+pq.count()
 
 
 
 # %% [15-5] 두 폴더의 크기(KB) 를 비교하십시오. (준비 셀의 du 함수)
-
+print("CSV   :", du("out/s15/clean_csv"), "KB")
+print("Parquet  :", du("out/s15/clean_parquet"), "KB")
 
 
 
@@ -78,29 +85,54 @@ print("out/s15 비움")
 
 
 # %% [15-7] mode 를 append 로 해서 한 번 더 쓰고, 줄 수를 세십시오.
-
+clean.write.mode("append").parquet("out/s15/clean_parquet")
+spark.read.parquet("out/s15/clean_parquet").count()
+# append 겹치는 부분이 보이지 않고, 중복을 유발
 
 
 
 # %% [15-8] mode 를 overwrite 로 써서 원래대로 되돌리고 세십시오.
-
-
+clean.write.mode("overwrite").parquet("out/s15/clean_parquet")
+spark.read.parquet("out/s15/clean_parquet").count()
+# overwrite 덮어 쓴다(지우고 새로 쓴다)
 
 
 # %% [15-9] partitionBy — tag_type 별로 폴더를 나눠 저장하고, 폴더 모양을 보십시오.
-
-
+#clean.write.partitionBy("tag_type").parquet("out/s15/by_type")
+print(ls("out/s15/by_type"))
+print(ls("out/s15/by_type/tag_type=IN")[:2])
 
 
 # %% [15-9 바꿔 보기 ①] 두 칸으로 나누면? — tag_type 아래에 시(hh) 폴더
 #    위 정답을 이렇게 바꾸면 어떻게 보일지 먼저 예상하고, 직접 쳐서 확인하십시오.
+(
+    clean.withColumn("hh", F.hour("tag_time"))
+    .write.mode("overwrite").partitionBy("tag_type", "hh").parquet("out/s15/by_two")
+)
 
-
+print(ls("out/s15/by_two"))
+print(ls("out/s15/by_two/tag_type=IN"))
 
 
 # %% [15-10] 나눠 저장한 것을 읽으면서 하차만 거르고, 실행 계획에서 PartitionFilters 를 찾으십시오.
+outs = spark.read.parquet("out/s15/by_type").filter(F.col("tag_type")=="OUT")
+print(outs.count())
+outs.explain()
+
 
 
 
 
 # %% [15-11] 시(hour) 칸을 만들어 시간별 폴더로 저장하고, 폴더 목록을 보십시오. 파일은 폴더마다 하나씩만 생기게 하십시오.
+(
+    clean.withColumn("hh", F.hour("tag_time"))      \
+        .coalesce(1)
+        .write.partitionBy("hh").parquet("out/s15/by_hour")
+)
+ls("out/s15/by_hour")
+
+
+
+
+
+# %%

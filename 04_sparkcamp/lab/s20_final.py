@@ -48,16 +48,26 @@ print("trips:", trips.count())
 
 
 # %% [H-1] 하차 인원이 가장 많은 역 세 곳을 역 이름으로 보이십시오. (clean 기준)
-
+(
+    clean.filter(F.col("tag_type") == "OUT")        \
+        .join(st, "station_id")                     \
+        .groupBy("station_nm").count()
+        .orderBy(F.col("count").desc())
+        .show(3)
+    
+)
 
 
 
 # %% [H-2] 07시대(07:00:00 이상 08:00:00 미만)에 탄 사람(승차)은 몇 명입니까?
+clean.filter((F.col("tag_type") == "IN") &
+    (F.col("tag_time") >= "2026-10-14 07:00:00") &
+    (F.col("tag_time") < "2026-10-14 08:00:00")).count()
 
 
-
-
+     
 # %% [H-3] 노선별 승차 인원을 많은 순으로 보이십시오.
+
 
 
 
@@ -73,13 +83,27 @@ print("trips:", trips.count())
 
 
 # %% [H-6] 하루에 두 번 이상 탄(승차 2회 이상) 카드는 몇 장입니까?
-
+(
+    clean.filter(F.col("tag_type") == "IN")     \
+        .groupBy("card_id").count()
+        .filter(F.col("count") >= 2)
+        .count()
+)
 
 
 
 # %% [H-7] 원본(raw)에서 격리된 이벤트의 이유별 개수를 구하고, 원본 = 중복 + 격리 + 정상 이 맞는지 한 줄로 찍으십시오.
 
+# UNKWON_STATION / BAD_TIME 
+# 원본 = 중복 + 격리 + 정상이 맞는지 한 줄로 찍으십시오.
+quarantine = dedup.filter(is_bad).withColumn(
+     "reason", F.when(F.col("station_id").isNull() |
+                ~F.col("station_id").isin(valid_ids),
+                "UNKNOWN_STATION").otherwise("BAD_TIME"))
 
+quarantine.groupBy("reason").count().show()
+n_dup = raw.count() - dedup.count()
+print(raw.count(), "=", n_dup, "+", quarantine.count(), "+", clean.count())
 
 
 # %% [H-8] 탄 역 → 내린 역 짝 중 가장 많은 세 가지를 역 이름으로 보이십시오.

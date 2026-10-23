@@ -15,7 +15,7 @@ $Map = [ordered]@{
 # Directory names skipped at any depth
 $ExcludeDirs = @(
     '.venv', '.venv-1', 'venv', '__pycache__', '.ipynb_checkpoints', '.git',
-    'tmp', 'spark-warehouse', 'out', 'metastore_db'
+    'tmp', 'spark-warehouse', 'out', 'metastore_db', 'ivy', 'lake'
 )
 # File patterns skipped
 $ExcludeFiles = @('*.pyc', '*.crc', 'db.sqlite3', '.env', 'derby.log', '*.log', '*.exe', '*.dll')

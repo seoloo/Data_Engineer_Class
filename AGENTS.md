@@ -39,7 +39,8 @@ powershell -ExecutionPolicy Bypass -File .\sync.ps1
 ```
 
 - `robocopy /MIR`로 원본을 미러링합니다. 원본에서 지운 파일은 저장소에서도 지워집니다.
-- 제외 대상: 폴더 `.venv*`, `venv`, `__pycache__`, `.ipynb_checkpoints`, `.git`, `tmp`, `spark-warehouse`, `out`, `metastore_db` / 파일 `*.pyc`, `*.crc`, `db.sqlite3`, `.env`, `*.log`, `*.exe`, `*.dll`.
+- 제외 대상: 폴더 `.venv*`, `venv`, `__pycache__`, `.ipynb_checkpoints`, `.git`, `tmp`, `spark-warehouse`, `out`, `metastore_db`, `ivy`, `lake` / 파일 `*.pyc`, `*.crc`, `db.sqlite3`, `.env`, `*.log`, `*.exe`, `*.dll`.
+- Spark의 `ivy/`는 다운로드한 라이브러리 캐시, `lake/`는 실행으로 생성한 Delta 테이블입니다. 원본에서 분석 근거로 읽을 수 있지만 저장소에는 복사하지 않습니다.
 - robocopy 종료 코드 0~7은 성공이고, 8 이상이면 실패입니다.
 - 새 과목이 생기면 `sync.ps1`의 `$Map`에 `'C:\새폴더' = '05_새폴더'`를 추가하고, 이 문서 3절 표와 README 목차도 같이 고칩니다.
 - `sync.ps1`은 ASCII로만 씁니다. PowerShell 5.1은 BOM이 없는 UTF-8 파일의 한글을 깨뜨립니다.

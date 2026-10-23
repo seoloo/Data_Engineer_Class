@@ -61,6 +61,7 @@
 수업한 날의 요약은 [daily-log](daily-log)에 날짜별로 있습니다 (2026-10-22부터).
 
 - [2026-10-22 — Spark SQL · 시간 창 · 정제 · 파티션과 셔플](daily-log/2026-10-22.md): STEP 11~14 실습 내용, 남은 셀과 복습 포인트, 다음 진도(STEP 15).
+- [2026-10-23 — Parquet 저장 · Delta Lake 기본 · 종합 문제 복습](daily-log/2026-10-23.md): STEP 15·16과 종합 문제 일부, Delta 장부의 반복 실행 내역, 남은 셀과 복습 포인트.
 
 ## 작업 흐름
 
@@ -76,7 +77,7 @@ git push
 ```
 
 - `sync.ps1`은 원본 폴더를 미러링합니다 (원본에서 지운 파일은 저장소에서도 지워집니다).
-- 가상환경(`.venv`), `__pycache__`, Spark 실행 결과(`out`, `tmp`, `spark-warehouse`), `db.sqlite3`, `.env`, `exe/dll`은 복사하지 않습니다.
+- 가상환경(`.venv`), `__pycache__`, Spark 실행 결과(`out`, `tmp`, `spark-warehouse`, `lake`), 라이브러리 캐시(`ivy`), `db.sqlite3`, `.env`, `exe/dll`은 복사하지 않습니다.
 - 새 과목이 생기면 `sync.ps1`의 `$Map`에 `'C:\새폴더' = '05_새폴더'` 한 줄을 추가합니다.
 
 ## AI 에이전트용 안내

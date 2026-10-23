@@ -56,46 +56,68 @@ print("lake/bronze/tags · lake/ref/stations 비움")
 
 
 # %% [16-1] 시각을 글자 그대로 읽은 원본(raw_text — 준비 셀)을 Delta 형식으로 lake/bronze/tags 에 저장하고, 폴더 안을 보십시오.
-
+raw_text.write.format("delta").mode("overwrite").save("lake/bronze/tags")
+ls("lake/bronze/tags")
 
 
 
 # %% [16-2] 장부 폴더(_delta_log) 안의 .json 파일 이름을 보십시오.
-
-
+[f for f in ls("lake/bronze/tags/_delta_log") if f.endswith(".json")]
 
 
 # %% [16-3] 장부 첫 파일 안에 어떤 종류의 기록이 들어 있는지 보십시오. (한 줄 = 기록 하나)
+with open("lake/bronze/tags/_delta_log/00000000000000000000.json") as f:
+    kinds = sorted({list(json.loads(line))[0] for line in f})
+kinds
 
+# commitInfo - 누가 언제 무엇을 / metaData - 스키마
+# Protocol - Delta 규칙 - add - 추가했다 더했다
 
 
 
 # %% [16-4] Delta 로 다시 읽어 줄 수와 스키마를 보고, 깨진 시각(분이 67) 이 원문 그대로 남아 있는지 찾으십시오.
-
+bronze = spark.read.format("delta").load("lake/bronze/tags")
+bronze.printSchema()
+print(bronze.count())
+bronze.filter(F.col("tag_time").contains(":67:"))       \
+    .select("event_id", "tag_time").show()
+    
 
 
 
 # %% [16-5] 장부 보기 — 이 테이블의 역사(history)를 보십시오.
-
+dt = DeltaTable.forPath(spark, "lake/bronze/tags")
+dt.history().select("version", "operation").show()
 
 
 
 # %% [16-6] 실수로 연습용 작은 로그(tags_mini, 12줄)를 Bronze 에 append 하고, 줄 수와 역사를 보십시오.
+mini = spark.read.schema(RAW_SCHEMA).json("data/tags_mini.jsonl")
+mini.write.format("delta").mode("append").save("lake/bronze/tags")
+print(spark.read.format("delta").load("lake/bronze/tags").count())
+dt.history().select("version", "operation").show()
 
 
 
 
 # %% [16-7] 시간 여행 — 버전 0 과 버전 1 의 줄 수를 각각 세십시오.
+v0 = spark.read.format("delta").option("versionAsOf", 0).load("lake/bronze/tags")
+v1 = spark.read.format("delta").option("versionAsOf", 1).load("lake/bronze/tags")
+print(v0.count(), v1.count())
 
 
 
 
 # %% [16-8] 실수로 넣은 12줄(event_id 가 M 으로 시작)을 지우고, 줄 수와 역사를 보십시오.
-
+dt.delete("event_id LIKE 'M%'")
+print(spark.read.format("delta").load("lake/bronze/tags"))
+dt.history().select("version", "operation").show()
 
 
 
 # %% [16-9] 지운 뒤에도 버전 1 은 여전히 읽히는지 보십시오.
+spark.read.format("delta").option("versionAsOf", 1).load("lake/bronze/tags").count()
+
 
 
 
