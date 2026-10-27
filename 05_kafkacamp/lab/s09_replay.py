@@ -36,24 +36,75 @@ print("지운 토픽:", old)
 
 
 # %% [09-1] 파티션 3개짜리 토픽 tags 와 tags_live 를 만드십시오.
-
-
+for t in["tags", "tags_live"]:
+    admin.create_topics([NewTopic(t, num_partitions = 3, replication_factor = 1)])[t].result()
+    
+print(counts("tags"), counts("tags_live"))
 
 
 # %% [09-2] jsonl 파일을 읽어 한 줄씩 보내는 함수 send_file(path, topic) 을 만드십시오. 키는 카드 번호, 값은 줄 그대로. 보낸 줄 수를
 # 돌려줍니다.
+p = Producer({"bootstrap.servers" : BOOT, "partitioner" : "murmur2_random"})
 
-
+def send_file(path, topic):
+    n = 0
+    with open(path, encoding = "utf-8") as f:
+        for line in f:
+            line = line.strip()
+            
+            if not line:
+                continue
+            
+            rec = json.loads(line)
+            
+            p.produce(topic, key = rec["card_id"], value = line)
+            n += 1
+    
+    p.flush()
+    return n
 
 
 # %% [09-3] 하루 로그 전체를 tags 로 보내고, 파티션별 개수를 보십시오.
-
+t0 = time.time()
+n = send_file("data/tags_day.jsonl", "tags")
+print(n, "줄", round(time.time() - t0, 2), "초")
+print(counts("tags"))
 
 
 
 # %% [09-4] 도착 간격을 흉내 내며 보내도록 send_file 에 speed 를 더한 함수 replay(path, topic, speed) 를 만들고, part_01 을
 # speed=600(10분 → 1초)으로 tags_live 에 보내십시오.
+from datetime import datetime
 
+FMT = "%Y-%m-%d %H:%M:%S"
+
+def replay(path, topic, speed):
+    n , prev = 0, None
+    
+    with open(path, encoding = "utf-8") as f:
+        for line in f:
+            line = line.strip()
+            
+            if not line:
+                continue
+            
+            rec = json.loads(line)
+            t = datetime.strptime(rec["recv_time"], FMT)
+            if prev is not None:        # None은 시간이 깨진 것도 포함함-> None : 사용할 수 없는 값
+                gap = (t - prev).total_seconds() / speed
+                if gap > 0:
+                    p.flush()
+                    time.sleep(gap)
+            prev = t
+            p.produce(topic, key = rec["card_id"], value = line)
+            n += 1
+    
+    p.flush()
+    return n
+        
+t0 = time.time()    
+print(replay("data/stream_src/part_01.jsonl", "tags_live", 6000),    \
+    "줄,", round(time.time() - t0, 1), "초")
 
 
 
@@ -63,14 +114,28 @@ print("지운 토픽:", old)
 
 
 
-# %% [09-5] tags_live 의 메시지 하나를 꺼내 Kafka 의 timestamp 와 데이터 안의 tag_time · recv_time 을 나란히 찍으십시오.
 
+
+# %% [09-5] tags_live 의 메시지 하나를 꺼내 Kafka 의 timestamp 와 데이터 안의 tag_time · recv_time 을 나란히 찍으십시오.
+c = Consumer({"bootstrap.servers" : BOOT, "group.id" : "g09"})
+c.assign([TopicPartition("tags_live", 0, 0)])
+m = c.poll(5.0)     # 5.0 대기시간
+c.close()
+rec = json.loads(m.value())
+kind, ms = m.timestamp()
+print("kafka timestamp :", datetime.fromtimestamp(ms / 1000))
+# 지연 측정
+print("tag_time        :", rec["tag_time"])
+print("recv_time       :", rec["recv_time"])
 
 
 
 # %% [09-6] 완성본 tools\replay.py 를 불러와, part_02 를 tags_live 로 보내고 개수를 확인하십시오.
+from tools.replay import send_part
 
-
+print(send_part(2))
+print(sum(counts("tags_live")))
+# 로그 덧붙여지니까 실행 주의
 
 
 # %% [09-7] 새 그룹으로 tags 를 전부 읽어, 1과목과 같은 숫자가 나오는지 확인하십시오 — 줄 수 · 승하차별 줄 수 · 이벤트 가짓수.

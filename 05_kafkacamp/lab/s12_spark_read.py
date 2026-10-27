@@ -39,49 +39,72 @@ station_id STRING, tag_time TIMESTAMP, fare INT, recv_time TIMESTAMP
 
 
 # %% [12-1] tags 토픽을 배치로 읽어 raw 라는 이름에 담고, 스키마를 보십시오.
+raw = (
+    spark.read.format("kafka")
+    .option("kafka.bootstrap.servers", BOOT)
+    .option("subscribe", "tags")
+    .option("startingOffsets", "earliest")
+    .load()
+)
 
+raw.printSchema()
 
 
 
 # %% [12-2] raw 의 줄 수와 Spark 조각(파티션) 수를 보십시오.
+print(raw.count())
+print(raw.rdd.getNumPartitions())
 
 
 
 
 # %% [12-3] key · value 를 글자로 바꿔서 partition · offset 과 함께 세 줄 보십시오.
-
-
+raw.select(F.col("key").cast("string").alias("key"),
+           F.col("value").cast("string").alias("value"),
+            "partition", "offset").show(10, truncate =60)
 
 
 # %% [12-3 바꿔 보기 ①] cast 를 빼고 value 를 그대로 보면?
 #    위 정답을 이렇게 바꾸면 어떻게 보일지 먼저 예상하고, 직접 쳐서 확인하십시오.
-
-
-
+raw.select("key", "value").show(5, truncate = 60)
 
 # %% [12-4] value 를 SCHEMA 로 풀어 칸으로 펼친 DataFrame ev 를 만들고, 다섯 칸만 세 줄 보십시오. partition · offset 은 남겨
 # 둡니다.
+ev = (raw.select(F.from_json(F.col("value").cast("string"), SCHEMA).alias("e"),
+                 "partition", "offset")
+                .select("e.*", "partition", "offset"))
+
+ev.select("event_id", "station_id", "tag_time","partition", "offset").show(5)
 
 
 
 
 # %% [12-5] ev 로 승하차별 줄 수와 이벤트 가짓수를 구하십시오.
-
+ev.groupBy("tag_type").count().orderBy("tag_type").show()
+print(ev.select("event_id").distinct().count())
 
 
 
 # %% [12-6] Kafka 파티션별 줄 수를 세십시오.
-
+ev.groupBy("partition").count().orderBy("partition").show()
 
 
 
 # %% [12-7] tag_time 이 비어 있는(null) 줄을 보십시오. (깨진 시각 07:67 같은 것)
-
-
+# 깨졌는데 왜 안보이나 : ev 데이터를 스트링으로 변환해서 값이 있는 것으로
+ev.filter(F.col("tag_time").isNull()).select("event_id", "station_id",
+                                             "tag_time").show()
 
 
 # %% [12-8] Spark SQL 로 — ev 를 임시 뷰 ev 로 등록하고, 역별 승차 인원을 많은 순으로 구하십시오.
-
+ev.createOrReplaceTempView("ev")
+spark.sql("""
+    SELECT station_id,COUNT(*) AS boards
+    FROM ev
+    WHERE tag_type = 'IN'
+    GROUP BY station_id
+    ORDER BY boards DESC
+""").show()
 
 
 
@@ -90,4 +113,8 @@ station_id STRING, tag_time TIMESTAMP, fare INT, recv_time TIMESTAMP
 
 
 
+
 # %% [12-10] 일부러 틀려 보십시오. subscribe 를 빼고 읽어 보십시오.
+
+
+

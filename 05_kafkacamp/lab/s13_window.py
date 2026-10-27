@@ -54,7 +54,16 @@ print("tags_live 를 비우고 다시 만들었습니다:", counts("tags_live"))
 
 
 # %% [13-1] part_01 을 tags_live 로 보내고, tags_live 를 readStream 으로 읽어 칸으로 펼친 live 를 만드십시오.
+print(send_part(1))
+live = (spark.readStream.format("kafka")
+        .option("kafka.bootstrap.servers", BOOT)
+        .option("subscribe", "tags_live")
+        .option("startingOffsets", "ealiest")
+        .load()
+        .select(F.from_json(F.col("value").cast("string"), SCHEMA).alias("e"))
+        .select("e.*"))
 
+live.isStreaming
 
 
 
@@ -75,8 +84,26 @@ print("tags_live 를 비우고 다시 만들었습니다:", counts("tags_live"))
 
 # %% [13-5] 5분 창 + 워터마크 10분 으로 태그 수를 세어 파일(out/s13/win)에 append 하는 함수 run_win() 을 만드십시오. 한 번 부르면 지금
 # 있는 것만 처리하고 멈춥니다(availableNow).
-
-
+def run_win(delay="10 minutes", name="win"):
+    q = (live.withWatermark("tag_time", delay)
+         .groupBy(F.window("tag_time", "5 minutes").alias("w"))
+         .count()
+         .select(F.col("w.start").alias("start"), F.col("w.end").alias("end"), "count")
+         .writeStream.format("parquet")
+         .option("path", f"out/s13/{name}")
+         .option("checkpointLocation", f"chk/s13/{name}")
+         .outputMode("append")
+         .trigger(availableNow=True)
+         .start())
+    q.awaitTermination()
+    last = [p for p in q.recentProgress if p["numInputRows"] > 0][-1]
+    print("읽은 줄:", sum(p["numInputRows"] for p in q.recentProgress),
+          "/ 워터마크:", q.lastProgress["eventTime"].get("watermark"),
+          "/ 버린 줄:", sum(p["stateOperators"][0]["numRowsDroppedByWatermark"] for p in q.recentProgress))
+ 
+def show_win(name="win"):
+    w = spark.read.parquet(f"out/s13/{name}")
+    print("닫힌 창:", w.count(), "/ 그 안의 태그:", w.agg(F.sum("count")).first()[0])
 
 
 # %% [13-6] run_win() 을 한 번 부르고, 닫힌 창을 보십시오. (지금 tags_live 에는 part_01 · 02 = 402줄)

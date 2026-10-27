@@ -53,34 +53,87 @@ print("지운 토픽:", old)
 
 
 # %% [14-1] tags 를 배치로 읽어 역별 승차 수(중복 제거 · S99 포함)를 구한 DataFrame boards 를 만드십시오.
-
+ev = (spark.read.format("kafka")
+      .option("kafka.bootstrap.servers", BOOT)
+      .option("subscribe", "tags")
+      .option("startingOffsets", "earliest")
+      .load()
+      .select(F.from_json(F.col("value").cast("string"), SCHEMA).alias("e"))
+      .select("e.*")
+      .dropDuplicates(["event_id"]))
+boards = ev.filter(F.col("tag_type") == "IN").groupBy("station_id").agg(F.count("*").alias("boards"))
+boards.orderBy("station_id").show()
 
 
 
 # %% [14-2] boards 를 key = 역 코드, value = JSON 모양으로 바꿔 보십시오. (아직 보내지 않습니다)
+out = boards.select(F.col("station_id").alias("key"),
+                    F.to_json(F.struct("station_id", "boards")).alias("value"))
 
+out.show(5)
 
 
 
 # %% [14-2 바꿔 보기 ①] struct 안에 역 이름(station_nm) 까지 넣으려면? — 역 마스터를 붙여서
 #    위 정답을 이렇게 바꾸면 어떻게 보일지 먼저 예상하고, 직접 쳐서 확인하십시오.
-
-
+st = spark.read.csv("data/stations.csv", header = True)
+(boards.join(st, "station_id", "left")
+        .select(F.col("station_id").alias("key"),
+            F.to_json(F.struct("station_id", "station_nm", "boards")).alias("value"))
+        .orderBy("key")
+        .show(10, truncate = False)
+)
 
 
 # %% [14-3] out 을 station_cnt 토픽으로 보내고, 파티션별 개수를 보십시오.
+(
+    out.write.format("kafka")
+        .option("kafka.bootstrap.servers", BOOT)
+        .option("topic", "station_cnt")
+        .save()
+)
 
+counts("staiton_cnt")
 
 
 
 # %% [14-4] station_cnt 를 Spark 로 다시 읽어 key · value 를 글자로 보십시오.
-
-
+(
+    spark.read.format("kafka")
+        .option("kafka.bootstrap.servers", BOOT)
+        .option("subscribe", "station_cnt")
+        .option("startingOffsets", "earliest")
+        .load()
+        .select(F.col("key").cast("string"), F.col("value").cast("string"))
+        .show(truncate = False)
+)
 
 
 # %% [14-5] 스트리밍으로 — tags_live(지금 10조각이 다 있음)를 읽어 5분 창 승차 수(워터마크 10분)를 win5 토픽에 쓰는 쿼리를 availableNow
 # 로 돌리고, win5 에 몇 개가 들어갔는지 보십시오.
-
+live = (spark.readStream.format("kafka")
+        .option("kafka.bootstrap.servers", BOOT)
+        .option("subscribe", "tags_live")
+        .option("startingOffsets", "earliest")
+        .load()
+        .select(F.from_json(F.col("value").cast("string"), SCHEMA).alias("e"))
+        .select("e.*")
+        .filter(F.col("tag_type") == "IN"))
+win = (live.withWatermark("tag_time", "10 minutes")
+       .groupBy(F.window("tag_time", "5 minutes").alias("w"))
+       .count()
+       .select(F.date_format("w.start", "HH:mm").alias("key"),
+               F.to_json(F.struct(F.col("w.start").cast("string").alias("start"),
+                                  "count")).alias("value")))
+q = (win.writeStream.format("kafka")
+     .option("kafka.bootstrap.servers", BOOT)
+     .option("topic", "win5")
+     .option("checkpointLocation", "chk/s14/win5")
+     .outputMode("update")
+     .trigger(availableNow=True)
+     .start())
+q.awaitTermination()
+counts("win5")
 
 
 
