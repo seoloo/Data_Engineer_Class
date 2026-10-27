@@ -12,7 +12,7 @@
 
 ## 2. 가장 중요한 규칙
 
-1. **과목 폴더(`01_*` ~ `04_*`)를 직접 고치지 마십시오.** 이 폴더들은 `C:\` 원본의 복사본(미러)입니다. 여기서 고치거나 파일을 추가해도 다음 `sync.ps1` 실행 때 덮어쓰이거나 지워집니다. 고쳐야 하면 `C:\` 원본에서 고치고, 그것도 사용자가 요청했을 때만 합니다.
+1. **과목 폴더(`01_*` ~ `05_*`)를 직접 고치지 마십시오.** 이 폴더들은 `C:\` 원본의 복사본(미러)입니다. 여기서 고치거나 파일을 추가해도 다음 `sync.ps1` 실행 때 덮어쓰이거나 지워집니다. 고쳐야 하면 `C:\` 원본에서 고치고, 그것도 사용자가 요청했을 때만 합니다.
 2. **커밋과 푸시는 사용자가 합니다.** 사용자가 명시적으로 "커밋해줘", "올려줘"라고 하지 않으면 커밋하거나 푸시하지 마십시오.
 3. **커밋에 AI 표시를 넣지 마십시오.** `Co-Authored-By: Claude ...`, `Generated with ...` 같은 줄을 넣지 않습니다. 작성자는 사용자 한 명만 보여야 합니다.
 4. **강제 푸시, 히스토리 재작성은 하지 마십시오.** 사용자가 직접 요청한 경우만 예외입니다.
@@ -29,6 +29,7 @@
 | `C:\jsonpd` | `02_jsonpd` | |
 | `C:\dstd` | `03_dstd` | |
 | `C:\sparkcamp` | `04_sparkcamp` | |
+| `C:\kafkacamp` | `05_kafkacamp` | Kafka · Spark 연동 실습 |
 | `C:\hadoop` | (올리지 않음) | winutils 바이너리. [setup/hadoop.md](setup/hadoop.md)에 설치 방법만 기록 |
 | `C:\Users\Playdata\Desktop\프로젝트\수업\` 의 일부 파일 | `class_materials/` | 손으로 복사. `sync.ps1` 대상 아님 |
 
@@ -39,10 +40,11 @@ powershell -ExecutionPolicy Bypass -File .\sync.ps1
 ```
 
 - `robocopy /MIR`로 원본을 미러링합니다. 원본에서 지운 파일은 저장소에서도 지워집니다.
-- 제외 대상: 폴더 `.venv*`, `venv`, `__pycache__`, `.ipynb_checkpoints`, `.git`, `tmp`, `spark-warehouse`, `out`, `metastore_db`, `ivy`, `lake` / 파일 `*.pyc`, `*.crc`, `db.sqlite3`, `.env`, `*.log`, `*.exe`, `*.dll`.
+- 제외 대상: 폴더 `.venv*`, `venv`, `__pycache__`, `.ipynb_checkpoints`, `.git`, `tmp`, `spark-warehouse`, `out`, `metastore_db`, `ivy`, `lake`, `jars`, `chk` / 파일 `*.pyc`, `*.crc`, `db.sqlite3`, `.env`, `*.log`, `*.exe`, `*.dll`.
 - Spark의 `ivy/`는 다운로드한 라이브러리 캐시, `lake/`는 실행으로 생성한 Delta 테이블입니다. 원본에서 분석 근거로 읽을 수 있지만 저장소에는 복사하지 않습니다.
+- Kafka 연동 실습의 `jars/`는 별도로 받은 라이브러리, `chk/`는 스트리밍 체크포인트입니다. 두 폴더도 동기화에서 제외합니다.
 - robocopy 종료 코드 0~7은 성공이고, 8 이상이면 실패입니다.
-- 새 과목이 생기면 `sync.ps1`의 `$Map`에 `'C:\새폴더' = '05_새폴더'`를 추가하고, 이 문서 3절 표와 README 목차도 같이 고칩니다.
+- 새 과목이 생기면 `sync.ps1`의 `$Map`에 `'C:\새폴더' = '06_새폴더'`를 추가하고, 이 문서 3절 표와 README 목차도 같이 고칩니다.
 - `sync.ps1`은 ASCII로만 씁니다. PowerShell 5.1은 BOM이 없는 UTF-8 파일의 한글을 깨뜨립니다.
 - **그날의 최신 상태는 항상 `C:\` 원본에 있습니다.** 동기화 전이라면 원본을 읽으십시오.
 
@@ -61,12 +63,13 @@ Data_Engineer_Study/
 ├─ 01_pybo/            # 미러 — 수정 금지
 ├─ 02_jsonpd/          # 미러 — 수정 금지
 ├─ 03_dstd/            # 미러 — 수정 금지
-└─ 04_sparkcamp/       # 미러 — 수정 금지
+├─ 04_sparkcamp/       # 미러 — 수정 금지
+└─ 05_kafkacamp/       # 미러 — 수정 금지
 ```
 
 ## 5. 과목별 안내
 
-모든 실습 파일은 VS Code의 `# %%` 셀 형식입니다. 셀 단위로 `Shift+Enter`를 눌러 위에서부터 순서대로 실행합니다(노트북 `.ipynb`가 아닙니다).
+Python 실습 파일은 VS Code의 `# %%` 셀 형식입니다. 셀 단위로 `Shift+Enter`를 눌러 위에서부터 순서대로 실행합니다(노트북 `.ipynb`가 아닙니다). Kafka의 `.txt` 실습은 각 문제의 `[어디서]`에 지정된 터미널에서 진행합니다.
 실행할 때는 `activate`하지 않고 원본 폴더의 `.\.venv\Scripts\python.exe`를 직접 부릅니다.
 
 ### 01_pybo — Django 기초 (2026-09-10)
@@ -93,6 +96,14 @@ Data_Engineer_Study/
 - 데이터는 교통카드 태그 로그입니다. `data/tags_day.jsonl`(승차 IN / 하차 OUT, `tag_time`은 이벤트 시각, `recv_time`은 도착 시각)과 `data/stations.csv`, 스트리밍 원천 `data/stream_src/`가 있습니다.
 - 실행 환경: Java 17(`JAVA_HOME`), `HADOOP_HOME=C:\hadoop`, pyspark 4.1.3, delta-spark 4.4.1, `local[2]`.
 - 자세한 내용은 [04_sparkcamp/시작하기.txt](04_sparkcamp/시작하기.txt)에 있습니다.
+
+### 05_kafkacamp — Apache Kafka (2026-10-26 ~)
+- 원본은 `C:\kafkacamp`입니다. `lab/`는 실습 문제, `answer/`는 정답이며, 각각 Python 파일 13개와 터미널용 `.txt` 파일 5개가 있습니다.
+- 교재 구성: s02 Docker·연결 → s03 토픽·메시지 → s04 파티션·키·오프셋 → s05 컨슈머 그룹 → s06 프로듀서 → s07 컨슈머 → s08 키 설계 → s09 재생기 → s10 복제·장애 → s11 전달 보장 → s12 Spark 읽기 → s13 시간 창·워터마크 → s14 Kafka 쓰기 → s15 Bronze·Silver 파이프라인 → s16 OPTIMIZE·ZORDER·Gold → s17 성능 측정 → sH 종합 문제. 파일이 있다는 사실과 실제 수업 진도는 구분합니다.
+- `kafka1.yml`은 브로커 한 대, `kafka3.yml`은 복제 실습용 세 대의 Docker Compose 구성입니다. 이미지 태그는 두 파일 모두 `apache/kafka:4.3.1`입니다. PC에서는 기본 `localhost:9092`, 세 대 구성에서는 `9092`·`9093`·`9094`로 연결합니다.
+- `requirements.txt` 기준 패키지는 pyspark 4.1.3, delta-spark 4.4.1, confluent-kafka 2.16.0, pandas 2.3.3, pyarrow 26.0.0, ipykernel 7.4.0입니다. 설치 여부는 별도로 확인합니다.
+- `make_data.py`는 `data/stations.csv`, `tags_mini.jsonl`, `tags_mini_keyed.txt`, `tags_day.jsonl`, `stream_src/part_01.jsonl`~`part_10.jsonl`을 생성합니다. 기존 Spark 수업과 같은 교통카드 태그 로그 구조이며, `tools/replay.py`는 카드 번호를 메시지 키로 사용해 Kafka에 재생하는 도우미입니다.
+- 실행 명령과 실습 위치는 [kafka1.yml](05_kafkacamp/kafka1.yml), [lab/s02_docker.txt](05_kafkacamp/lab/s02_docker.txt)를 참고합니다. 초기화 셀에는 토픽·결과·체크포인트 삭제가 포함될 수 있으므로 분석할 때 코드를 통째로 실행하지 않습니다.
 
 ## 6. 일별 기록 (daily-log)
 

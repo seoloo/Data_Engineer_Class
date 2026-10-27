@@ -1,0 +1,186 @@
+================================================================================
+  STEP 04  파티션 · 키 · 오프셋 — 장부를 여러 권으로 나누기
+  C:\kafkacamp\answer\s04_partitions.txt
+  터미널 문제입니다. 문제마다 [어디서] 에 적힌 터미널에 명령을 **직접** 칩니다.
+  (복사·붙여넣기 하지 않습니다. 긴 명령은 ↑ 로 불러와 고쳐 칩니다)
+  정답 파일입니다. '── 결과' 아래는 화면에 나오는 모양입니다.
+================================================================================
+
+
+--------------------------------------------------------------------------------
+[04-1] 파티션 3개짜리 토픽 tags3 을 만드십시오. (먼저 docker exec -it kafka bash 로 들어갑니다)
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-topics.sh --bootstrap-server localhost:9092 --create --topic tags3 --partitions 3
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+Created topic tags3.
+
+--------------------------------------------------------------------------------
+[04-2] tags3 을 자세히 보십시오.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic tags3
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+Topic: tags3	TopicId: k4Wypv7hQAoQRydVT6_wEg	PartitionCount: 3	ReplicationFactor: 1	Configs: 
+	Topic: tags3	Partition: 0	Leader: 1	Replicas: 1	Isr: 1	Elr: 	LastKnownElr: 
+	Topic: tags3	Partition: 1	Leader: 1	Replicas: 1	Isr: 1	Elr: 	LastKnownElr: 
+	Topic: tags3	Partition: 2	Leader: 1	Replicas: 1	Isr: 1	Elr: 	LastKnownElr: 
+
+→ PartitionCount: 3, 그리고 Partition: 0 · 1 · 2 세 줄. 브로커가 한 대뿐이라 세 장부 모두 Leader: 1 입니다.
+
+--------------------------------------------------------------------------------
+[04-3] 키를 붙여서 세 줄을 보내십시오. 줄마다 키:값 모양입니다.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-console-producer.sh --bootstrap-server localhost:9092 --topic tags3 --reader-property parse.key=true --reader-property key.separator=:
+>C001:IN S01
+>C002:IN S06
+>C001:OUT S03
+>(Ctrl+C)
+
+── 결과 (Kafka 4.3.1 화면 — 프롬프트 > 뒤에 친 글자만 보인다) ──
+(출력 없음)
+
+→ C001 이 키, IN S01 이 값입니다. 화면에는 아무것도 안 나옵니다.
+
+--------------------------------------------------------------------------------
+[04-4] 처음부터 읽되 파티션 · 오프셋 · 키를 같이 찍으십시오.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic tags3 --from-beginning --formatter-property print.partition=true --formatter-property print.offset=true --formatter-property print.key=true
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+The consumer rebalance protocol (KIP-848) is production-ready! Set group.protocol=consumer to try it out. See https://kafka.apache.org/documentation/#consumer_rebalance_protocol
+Partition:2	Offset:0	C001	IN S01
+Partition:2	Offset:1	C001	OUT S03
+Partition:0	Offset:0	C002	IN S06
+Processed a total of 3 messages
+
+→ C001 두 줄이 같은 Partition:2, C002 는 Partition:0. 그리고 오프셋이 장부마다 0부터 — 2번 장부에 0 · 1, 0번 장부에
+0. 보낸 순서는 C001 · C002 · C001 이었는데, 화면 순서는 장부별로 묶여 나올 수 있습니다. Kafka 가 지키는 순서는 "한 파티션 안"
+뿐입니다.
+
+--------------------------------------------------------------------------------
+[04-5] 파일(카드번호:JSON 12줄)을 키와 함께 보내십시오.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-console-producer.sh --bootstrap-server localhost:9092 --topic tags3 --reader-property parse.key=true --reader-property key.separator=: < /data/tags_mini_keyed.txt
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+>>>>>>>>>>>>>
+
+→ tags_mini_keyed.txt 는 make_data.py 가 만든 파일로, tags_mini.jsonl 12줄 앞에 카드번호: 를 붙인 것입니다.
+key.separator 는 줄에서 처음 나오는 : 하나만 보고 자르기 때문에, JSON 안의 : 들은 값에 그대로 남습니다.
+
+--------------------------------------------------------------------------------
+[04-6] 파티션마다 몇 개씩 쌓였는지 보십시오.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-get-offsets.sh --bootstrap-server localhost:9092 --topic tags3
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+tags3:0:3
+tags3:1:1
+tags3:2:11
+
+→ 0번 3 · 1번 1 · 2번 11. 합계 15 = 손으로 3 + 파일 12. 카드가 6장(C001~C006)뿐인데 그중 넷(C001 · C003 · C004
+· C005)이 2번 장부로 갔습니다. 0번은 C002 뿐, 1번은 C006 뿐입니다. 키가 몇 개 안 되면 이렇게 한 장부에 몰립니다 — STEP 08 의
+쏠림.
+
+--------------------------------------------------------------------------------
+[04-7] 2번 파티션만 처음부터 읽으십시오. 키도 같이 찍습니다.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic tags3 --partition 2 --offset earliest --formatter-property print.key=true --max-messages 11
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+The consumer rebalance protocol (KIP-848) is production-ready! Set group.protocol=consumer to try it out. See https://kafka.apache.org/documentation/#consumer_rebalance_protocol
+C001	IN S01
+C001	OUT S03
+C001	{"event_id": "M01", "card_id": "C001", "trip_id": "T001", "tag_type": "IN", "station_id": "S01", "tag_time": "2026-10-14 08:01:10", "fare": 0, "recv_time": "2026-10-14 08:01:11"}
+C003	{"event_id": "M03", "card_id": "C003", "trip_id": "T003", "tag_type": "IN", "station_id": "S03", "tag_time": "2026-10-14 08:05:00", "fare": 0, "recv_time": "2026-10-14 08:05:01"}
+C004	{"event_id": "M04", "card_id": "C004", "trip_id": "T004", "tag_type": "IN", "station_id": "S05", "tag_time": "2026-10-14 08:07:30", "fare": 0, "recv_time": "2026-10-14 08:07:31"}
+C005	{"event_id": "M05", "card_id": "C005", "trip_id": "T005", "tag_type": "IN", "station_id": "S01", "tag_time": "2026-10-14 08:09:45", "fare": 0, "recv_time": "2026-10-14 08:09:46"}
+C005	{"event_id": "M07", "card_id": "C005", "trip_id": "T005", "tag_type": "OUT", "station_id": "S02", "tag_time": "2026-10-14 08:12:30", "fare": 1550, "recv_time": "2026-10-14 08:12:31"}
+C003	{"event_id": "M08", "card_id": "C003", "trip_id": "T003", "tag_type": "OUT", "station_id": "S04", "tag_time": "2026-10-14 08:22:15", "fare": 1550, "recv_time": "2026-10-14 08:22:16"}
+C004	{"event_id": "M10", "card_id": "C004", "trip_id": "T004", "tag_type": "OUT", "station_id": "S07", "tag_time": "2026-10-14 08:29:00", "fare": 1650, "recv_time": "2026-10-14 08:29:01"}
+C001	{"event_id": "M11", "card_id": "C001", "trip_id": "T001", "tag_type": "OUT", "station_id": "S03", "tag_time": "2026-10-14 08:31:40", "fare": 1650, "recv_time": "2026-10-14 08:31:41"}
+C005	{"event_id": "M07", "card_id": "C005", "trip_id": "T005", "tag_type": "OUT", "station_id": "S02", "tag_time": "2026-10-14 08:12:30", "fare": 1550, "recv_time": "2026-10-14 08:12:58"}
+Processed a total of 11 messages
+
+→ C001 · C003 · C004 · C005 의 기록만 나옵니다. 카드마다 보면 IN 다음에 OUT — 키가 같으니 같은 장부에 보낸 순서대로 적혀
+있습니다. --partition 을 주면 그룹 없이 그 장부 하나만 직접 읽습니다.
+
+--------------------------------------------------------------------------------
+[04-8] 2번 파티션의 9번 오프셋부터 읽으십시오. (끝에서 두 개)
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic tags3 --partition 2 --offset 9 --formatter-property print.offset=true --max-messages 2
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+The consumer rebalance protocol (KIP-848) is production-ready! Set group.protocol=consumer to try it out. See https://kafka.apache.org/documentation/#consumer_rebalance_protocol
+Offset:9	{"event_id": "M11", "card_id": "C001", "trip_id": "T001", "tag_type": "OUT", "station_id": "S03", "tag_time": "2026-10-14 08:31:40", "fare": 1650, "recv_time": "2026-10-14 08:31:41"}
+Offset:10	{"event_id": "M07", "card_id": "C005", "trip_id": "T005", "tag_type": "OUT", "station_id": "S02", "tag_time": "2026-10-14 08:12:30", "fare": 1550, "recv_time": "2026-10-14 08:12:58"}
+Processed a total of 2 messages
+
+→ Offset:9 · Offset:10 두 줄. 오프셋만 알면 어디서든 다시 읽을 수 있습니다. 장애 뒤에 "어디까지 처리했더라" 를 오프셋으로 기억해 두는
+것이 STEP 07(커밋) · STEP 15(체크포인트)의 핵심입니다.
+
+--------------------------------------------------------------------------------
+[04-9] 일부러 틀려 보십시오. parse.key=true 로 켜 놓고 : 없이 한 줄을 보내 보십시오.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-console-producer.sh --bootstrap-server localhost:9092 --topic tags3 --reader-property parse.key=true --reader-property key.separator=:
+>C004 IN S01
+
+── 결과 (오류 — 일부러 틀린 것. Kafka 4.3.1 은 이 아래에 자바 오류 줄이 몇 줄 더 붙는다) ──
+org.apache.kafka.common.KafkaException: No key separator found on line number 1: 'C004 IN S01'
+
+→ No key separator found — 키와 값을 가를 : 가 없다. 프로듀서가 오류를 내고 꺼집니다. 이 줄은 보내지지 않았습니다(04-6 의 숫자는
+그대로).
+
+--------------------------------------------------------------------------------
+[04-10] tags3 의 파티션을 4개로 늘리고 확인하십시오.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-topics.sh --bootstrap-server localhost:9092 --alter --topic tags3 --partitions 4
+./kafka-get-offsets.sh --bootstrap-server localhost:9092 --topic tags3
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+tags3:0:3
+tags3:1:1
+tags3:2:11
+tags3:3:0
+
+→ tags3:3:0 이 새로 생겼습니다. 예전 메시지는 옮겨지지 않습니다 — 이미 적힌 장부는 그대로입니다.
+
+[04-10 바꿔 보기 ①] 파티션을 2개로 줄이면?
+./kafka-topics.sh --bootstrap-server localhost:9092 --alter --topic tags3 --partitions 2
+
+── 결과 ──
+Error while executing topic command : Topic currently has 4 partitions, which is higher than the requested 2.
+[ERROR] org.apache.kafka.common.errors.InvalidPartitionsException: Topic currently has 4 partitions, which is higher than the requested 2.
+
+→ 이래서 — 줄이기는 안 됩니다. 줄이려면 장부를 합쳐야 하는데, 그러면 각 장부의 오프셋과 순서가 깨지기 때문입니다. 정말 줄여야 하면 새 토픽을 만들어
+옮깁니다. 파티션 수는 "늘릴 수는 있지만 줄일 수는 없다" — 프로젝트 1단계 설계표에 꼭 적는 한 줄입니다.
+
+--------------------------------------------------------------------------------
+[04-11] C001 로 한 줄 더 보내고, 그 줄이 몇 번 파티션에 갔는지 보십시오.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-console-producer.sh --bootstrap-server localhost:9092 --topic tags3 --reader-property parse.key=true --reader-property key.separator=:
+>C001:IN S02
+>(Ctrl+C)
+./kafka-get-offsets.sh --bootstrap-server localhost:9092 --topic tags3
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+tags3:0:3
+tags3:1:2
+tags3:2:11
+tags3:3:0
+
+→ 이번에는 1번 파티션이 하나 늘었습니다(2 → 3). 예전 C001 은 2번 장부에 있는데 새 C001 은 1번 장부로 — 파티션 수가 바뀌면 같은 키의
+자리가 바뀝니다(해시값 % 4 ≠ 해시값 % 3). C001 의 "승차 → 하차" 순서가 두 장부에 쪼개질 수 있습니다. 그래서 파티션 수는 처음에 넉넉히
+정합니다.

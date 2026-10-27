@@ -10,8 +10,10 @@
 | [02_jsonpd](02_jsonpd) | 2026-10-06 | 수업 완료 | JSON → pandas | 딕셔너리/JSON 문자열·파일, 중첩 JSON 펼치기, CSV, pandas 선택·정리·merge·groupby, 파이프라인(h00~h10) |
 | [03_dstd](03_dstd) | 2026-10-07 ~ | 수업 완료 | 데이터 표준화 · AI Ready Data | 원천 탐색, 표준사전·매핑표, 품질규칙·변환규칙, AS-IS/TO-BE 모델링, MySQL DDL (day01~day05) |
 | [04_sparkcamp](04_sparkcamp) | 2026-10-20 ~ | 수업 중 | Apache Spark | DataFrame, 스키마, groupBy, 시간, join, Spark SQL, 시간 창, 정제, 파티션, Parquet, Delta, Streaming (s03~s20) |
+| [05_kafkacamp](05_kafkacamp) | 2026-10-26 ~ | 수업 중 | Apache Kafka | Docker 구성, 토픽·파티션·키·오프셋, 프로듀서·컨슈머·그룹, 전달 보장, Spark·Delta 파이프라인, 성능 측정 (s02~s17, sH) |
 
 - `04_sparkcamp/lab` 은 내가 푼 실습, `04_sparkcamp/answer` 는 정답입니다.
+- `05_kafkacamp`도 `lab`과 `answer`로 나뉩니다. Python 파일은 셀 단위로, `.txt` 문제는 안내된 터미널에서 실습합니다. Docker 구성과 실행 명령은 [kafka1.yml](05_kafkacamp/kafka1.yml), [s02_docker.txt](05_kafkacamp/lab/s02_docker.txt)를 참고하세요.
 - Spark STEP 03~14의 `lab`에는 각 셀의 목적과 함수 동작을 설명하는 `# [셀 설명]`, `# [동작]` 주석이 있습니다. 미작성 셀의 실습 의도와 현재 코드에서 확인할 점도 함께 적었습니다.
 - 과목 오리엔테이션 슬라이드 등 강의 자료는 [class_materials](class_materials)에 있습니다.
 - 실행 환경 준비는 각 폴더의 `시작하기` 문서와 [setup/hadoop.md](setup/hadoop.md)를 보세요.
@@ -62,10 +64,11 @@
 
 - [2026-10-22 — Spark SQL · 시간 창 · 정제 · 파티션과 셔플](daily-log/2026-10-22.md): STEP 11~14 실습 내용, 남은 셀과 복습 포인트, 다음 진도(STEP 15).
 - [2026-10-23 — Parquet 저장 · Delta Lake 기본 · 종합 문제 복습](daily-log/2026-10-23.md): STEP 15·16과 종합 문제 일부, Delta 장부의 반복 실행 내역, 남은 셀과 복습 포인트.
+- [2026-10-26 — Kafka 시작 · 토픽과 파티션 · 프로듀서와 컨슈머](daily-log/2026-10-26.md): 사용자 확인 기준 STEP 07까지, 컨슈머 그룹·오프셋·커밋 복습, 다음 진도(STEP 08 키 설계).
 
 ## 작업 흐름
 
-수업은 가상환경·경로 문제로 `C:\pybo`, `C:\jsonpd`, `C:\dstd`, `C:\sparkcamp` 에서 진행합니다.
+수업은 가상환경·경로 문제로 `C:\pybo`, `C:\jsonpd`, `C:\dstd`, `C:\sparkcamp`, `C:\kafkacamp` 에서 진행합니다.
 이 저장소에는 [sync.ps1](sync.ps1)로 복사해서 올립니다.
 
 ```powershell
@@ -77,8 +80,8 @@ git push
 ```
 
 - `sync.ps1`은 원본 폴더를 미러링합니다 (원본에서 지운 파일은 저장소에서도 지워집니다).
-- 가상환경(`.venv`), `__pycache__`, Spark 실행 결과(`out`, `tmp`, `spark-warehouse`, `lake`), 라이브러리 캐시(`ivy`), `db.sqlite3`, `.env`, `exe/dll`은 복사하지 않습니다.
-- 새 과목이 생기면 `sync.ps1`의 `$Map`에 `'C:\새폴더' = '05_새폴더'` 한 줄을 추가합니다.
+- 가상환경(`.venv`), `__pycache__`, Spark·Kafka 실행 결과(`out`, `tmp`, `spark-warehouse`, `lake`, `chk`), 라이브러리 폴더(`ivy`, `jars`), `db.sqlite3`, `.env`, `exe/dll`은 복사하지 않습니다.
+- 새 과목이 생기면 `sync.ps1`의 `$Map`에 `'C:\새폴더' = '06_새폴더'` 한 줄을 추가합니다.
 
 ## AI 에이전트용 안내
 

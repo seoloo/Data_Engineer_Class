@@ -1,0 +1,229 @@
+================================================================================
+  STEP 10  복제와 장애 — 브로커 세 대 중 하나를 꺼 본다
+  C:\kafkacamp\answer\s10_replication.txt
+  터미널 문제입니다. 문제마다 [어디서] 에 적힌 터미널에 명령을 **직접** 칩니다.
+  (복사·붙여넣기 하지 않습니다. 긴 명령은 ↑ 로 불러와 고쳐 칩니다)
+  정답 파일입니다. '── 결과' 아래는 화면에 나오는 모양입니다.
+================================================================================
+
+
+--------------------------------------------------------------------------------
+[10-1] 1대짜리 Kafka 를 멈추십시오(지우지 않습니다). PowerShell, C:\kafkacamp 에서.
+[어디서] PowerShell (VS Code 아래 터미널, C:\kafkacamp)
+--------------------------------------------------------------------------------
+docker compose -f kafka1.yml stop
+
+── 결과 (학생 PC 화면 — 아이디·시각은 PC 마다 다름) ──
+[+] Stopping 1/1
+ ✔ Container kafka  Stopped        1.3s
+
+→ stop 이라 토픽과 메시지는 그대로 남아 있습니다. 같은 9092 문을 3대짜리의 1번이 쓰기 때문에 먼저 비켜 줍니다.
+
+--------------------------------------------------------------------------------
+[10-2] 3대짜리를 띄우십시오.
+[어디서] PowerShell (VS Code 아래 터미널, C:\kafkacamp)
+--------------------------------------------------------------------------------
+docker compose -f kafka3.yml up -d
+
+── 결과 (학생 PC 화면 — 아이디·시각은 PC 마다 다름) ──
+[+] Running 4/4
+ ✔ Network kafka3_default  Created   0.1s
+ ✔ Container kafka-3       Started   1.0s
+ ✔ Container kafka-1       Started   1.0s
+ ✔ Container kafka-2       Started   0.9s
+
+→ 같은 이미지로 컨테이너 셋. kafka3.yml 을 열어 보면 kafka-1 · kafka-2 · kafka-3 이 NODE_ID 와 포트(9092 ·
+9093 · 9094)만 다르고 나머지는 같습니다. 셋이 서로를 찾는 줄이 CONTROLLER_QUORUM_VOTERS:
+1@kafka-1:29093,2@kafka-2:29093,3@kafka-3:29093 입니다.
+
+--------------------------------------------------------------------------------
+[10-3] 세 대가 다 떴는지 보십시오. 이름 · 상태 · 포트만 보이게.
+[어디서] PowerShell (VS Code 아래 터미널, C:\kafkacamp)
+--------------------------------------------------------------------------------
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+── 결과 (학생 PC 화면 — 아이디·시각은 PC 마다 다름) ──
+NAMES     STATUS          PORTS
+kafka-3   Up 15 seconds   0.0.0.0:9094->9092/tcp
+kafka-2   Up 15 seconds   0.0.0.0:9093->9092/tcp
+kafka-1   Up 15 seconds   0.0.0.0:9092->9092/tcp
+
+→ --format 으로 보고 싶은 칸만 골랐습니다. 내 PC 의 9092 · 9093 · 9094 가 각 컨테이너의 9092 로 이어집니다. 1대짜리 kafka
+는 멈춰 있어서 목록에 없습니다.
+
+--------------------------------------------------------------------------------
+[10-4] kafka-1 안으로 들어가십시오.
+[어디서] PowerShell (VS Code 아래 터미널, C:\kafkacamp)
+--------------------------------------------------------------------------------
+docker exec -it kafka-1 bash
+
+── 결과 (학생 PC 화면 — 아이디·시각은 PC 마다 다름) ──
+kafka-1:/opt/kafka/bin$
+
+→ 이 STEP 의 Kafka 명령은 --bootstrap-server kafka-1:19092 를 씁니다. 컨테이너끼리 부르는 이름(kafka-1)과
+문(19092)입니다 — localhost:9092 로 물으면 다른 브로커의 주소를 localhost:9093 처럼 알려 주는데, 그 주소는 컨테이너 안에서는
+없는 곳이기 때문입니다.
+
+--------------------------------------------------------------------------------
+[10-5] 복제 3짜리 토픽 두 개를 만드십시오 — tags_rf3(min.insync.replicas=2) 와 strict3(min.insync.replicas=3).
+[어디서] kafka-1 컨테이너 안 (docker exec -it kafka-1 bash)
+--------------------------------------------------------------------------------
+./kafka-topics.sh --bootstrap-server kafka-1:19092 --create --topic tags_rf3 --partitions 3 --replication-factor 3 --config min.insync.replicas=2
+./kafka-topics.sh --bootstrap-server kafka-1:19092 --create --topic strict3 --partitions 1 --replication-factor 3 --config min.insync.replicas=3
+
+── 결과 (Kafka 4.3.1 화면) ──
+Created topic tags_rf3.
+Created topic strict3.
+
+→ --replication-factor 3 = 장부마다 복사본 셋. --config 는 이 토픽만의 설정을 붙입니다.
+
+--------------------------------------------------------------------------------
+[10-6] tags_rf3 를 자세히 보십시오.
+[어디서] kafka-1 컨테이너 안 (docker exec -it kafka-1 bash)
+--------------------------------------------------------------------------------
+./kafka-topics.sh --bootstrap-server kafka-1:19092 --describe --topic tags_rf3
+
+── 결과 (Kafka 4.3.1 화면 — 리더가 몇 번 브로커인지는 PC 마다 다를 수 있음) ──
+Topic: tags_rf3	TopicId: q3Xn0f1aTzGQm8bM2c9vEw	PartitionCount: 3	ReplicationFactor: 3	Configs: min.insync.replicas=2
+	Topic: tags_rf3	Partition: 0	Leader: 1	Replicas: 1,2,3	Isr: 1,2,3	Elr: 	LastKnownElr: 
+	Topic: tags_rf3	Partition: 1	Leader: 2	Replicas: 2,3,1	Isr: 2,3,1	Elr: 	LastKnownElr: 
+	Topic: tags_rf3	Partition: 2	Leader: 3	Replicas: 3,1,2	Isr: 3,1,2	Elr: 	LastKnownElr: 
+
+→ 장부 셋의 리더가 1 · 2 · 3 으로 나뉘어 있습니다 — 일을 고르게 나누려고 Kafka 가 돌아가며 맡깁니다(배치는 PC 마다 다를 수 있음).
+Replicas 와 Isr 가 같다 = 모든 복사본이 잘 따라오고 있다.
+
+--------------------------------------------------------------------------------
+[10-7] 키를 붙여 세 줄을 보내십시오. (콘솔 프로듀서의 기본은 acks=all)
+[어디서] kafka-1 컨테이너 안 (docker exec -it kafka-1 bash)
+--------------------------------------------------------------------------------
+./kafka-console-producer.sh --bootstrap-server kafka-1:19092 --topic tags_rf3 --reader-property parse.key=true --reader-property key.separator=:
+>C001:IN S01
+>C002:IN S06
+>C003:IN S03
+>(Ctrl+C)
+
+── 결과 (Kafka 4.3.1 화면 — 프롬프트 > 뒤에 친 글자만 보인다) ──
+(출력 없음)
+
+→ 세 줄 모두 세 브로커에 복사된 뒤 영수증을 받았습니다. Kafka 4 의 자바 프로듀서는 acks=all 이 기본값입니다.
+
+--------------------------------------------------------------------------------
+[10-8] PowerShell 터미널에서 2번 브로커를 끄십시오. (장애!)
+[어디서] PowerShell (VS Code 아래 터미널, C:\kafkacamp)
+--------------------------------------------------------------------------------
+docker stop kafka-2
+
+── 결과 (학생 PC 화면 — 아이디·시각은 PC 마다 다름) ──
+kafka-2
+
+→ 컨테이너 이름이 찍히면 꺼진 것입니다. 10~20초 안에 나머지 두 대가 "2번이 사라졌다" 를 알아챕니다.
+
+--------------------------------------------------------------------------------
+[10-9] kafka-1 터미널에서 tags_rf3 를 다시 보십시오. (10~20초 뒤)
+[어디서] kafka-1 컨테이너 안 (docker exec -it kafka-1 bash)
+--------------------------------------------------------------------------------
+./kafka-topics.sh --bootstrap-server kafka-1:19092 --describe --topic tags_rf3
+
+── 결과 (Kafka 4.3.1 화면 — 리더가 몇 번 브로커인지는 PC 마다 다를 수 있음) ──
+Topic: tags_rf3	TopicId: q3Xn0f1aTzGQm8bM2c9vEw	PartitionCount: 3	ReplicationFactor: 3	Configs: min.insync.replicas=2
+	Topic: tags_rf3	Partition: 0	Leader: 1	Replicas: 1,2,3	Isr: 1,3	Elr: 	LastKnownElr: 
+	Topic: tags_rf3	Partition: 1	Leader: 3	Replicas: 2,3,1	Isr: 3,1	Elr: 	LastKnownElr: 
+	Topic: tags_rf3	Partition: 2	Leader: 3	Replicas: 3,1,2	Isr: 3,1	Elr: 	LastKnownElr: 
+
+→ 두 가지가 바뀌었습니다. ① 2번이 리더였던 1번 장부의 리더가 3 으로 — 저절로 넘겨받았습니다. ② 모든 장부의 Isr 에서 2 가 빠졌습니다.
+Replicas 는 설계도라 그대로입니다. 아무도 손대지 않았는데 스스로 고쳤습니다.
+
+--------------------------------------------------------------------------------
+[10-10] 2번이 꺼진 채로 두 줄을 더 보내고, 처음부터 전부 읽으십시오.
+[어디서] kafka-1 컨테이너 안 (docker exec -it kafka-1 bash)
+--------------------------------------------------------------------------------
+./kafka-console-producer.sh --bootstrap-server kafka-1:19092 --topic tags_rf3 --reader-property parse.key=true --reader-property key.separator=:
+>C001:OUT S03
+>C002:OUT S01
+>(Ctrl+C)
+./kafka-console-consumer.sh --bootstrap-server kafka-1:19092 --topic tags_rf3 --from-beginning --formatter-property print.key=true --timeout-ms 5000
+
+── 결과 (Kafka 4.3.1 화면 — 리더가 몇 번 브로커인지는 PC 마다 다를 수 있음) ──
+The consumer rebalance protocol (KIP-848) is production-ready! Set group.protocol=consumer to try it out. See https://kafka.apache.org/documentation/#consumer_rebalance_protocol
+C002	IN S06
+C002	OUT S01
+C001	IN S01
+C003	IN S03
+C001	OUT S03
+Processed a total of 5 messages
+
+→ 5줄 전부 — 장애 전에 쓴 3줄도, 장애 중에 쓴 2줄도. ISR 이 두 곳(1 · 3)이라 min.insync.replicas=2 를 채우므로 쓰기도
+됩니다. 이것이 "한 대가 죽어도 서비스는 계속된다" 입니다. (파티션별로 묶여 나오는 순서는 PC 마다 다를 수 있음)
+
+--------------------------------------------------------------------------------
+[10-11] min.insync.replicas=3 인 strict3 에 한 줄 보내 보십시오. 몇 초 지켜본 뒤 Ctrl+C.
+[어디서] kafka-1 컨테이너 안 (docker exec -it kafka-1 bash)
+--------------------------------------------------------------------------------
+./kafka-console-producer.sh --bootstrap-server kafka-1:19092 --topic strict3
+>will this be saved?
+>(Ctrl+C)
+
+── 결과 (Kafka 4.3.1 화면 — 시각·번호는 다름, 같은 WARN 이 계속 이어짐) ──
+[2026-10-16 10:21:07,412] WARN [Producer clientId=console-producer] Got error produce response with correlation id 6 on topic-partition strict3-0, retrying (2147483646 attempts left). Error: NOT_ENOUGH_REPLICAS (org.apache.kafka.clients.producer.internals.Sender)
+[2026-10-16 10:21:07,515] WARN [Producer clientId=console-producer] Got error produce response with correlation id 7 on topic-partition strict3-0, retrying (2147483645 attempts left). Error: NOT_ENOUGH_REPLICAS (org.apache.kafka.clients.producer.internals.Sender)
+...
+
+→ NOT_ENOUGH_REPLICAS — "최소 3곳에 적어야 하는데 지금 살아 있는 복사본이 2곳뿐". 프로듀서는 포기하지 않고 계속 다시
+시도합니다(attempts left 가 줄어드는 것). Kafka 는 약속(3곳)을 못 지키면 '완료' 라고 말하지 않습니다. 데이터를 잃느니 멈추는 쪽을 고른
+것입니다.
+
+[10-11 바꿔 보기 ①] 같은 strict3 에 acks=1 로 보내면?
+./kafka-console-producer.sh --bootstrap-server kafka-1:19092 --topic strict3 --command-property acks=1
+>saved with acks=1?
+>(Ctrl+C)
+./kafka-console-consumer.sh --bootstrap-server kafka-1:19092 --topic strict3 --from-beginning --timeout-ms 5000
+
+── 결과 ──
+The consumer rebalance protocol (KIP-848) is production-ready! Set group.protocol=consumer to try it out. See https://kafka.apache.org/documentation/#consumer_rebalance_protocol
+saved with acks=1?
+Processed a total of 1 messages
+
+→ 이래서 — WARN 없이 저장되고, 읽으면 나옵니다. acks=1 은 "리더 한 곳에만 적히면 영수증을 달라" 라서 min.insync.replicas 를
+검사하지 않습니다. 빠르지만, 그 순간 리더가 죽으면 이 메시지는 사라질 수 있습니다. 그래서 잃으면 안 되는 데이터(결제 · 정산)는 acks=all, 조금
+잃어도 되는 데이터(화면 클릭 로그)는 acks=1 로 고르기도 합니다 — 속도와 안전의 맞바꿈입니다.
+
+--------------------------------------------------------------------------------
+[10-12] PowerShell 에서 2번 브로커를 다시 켜고, kafka-1 터미널에서 tags_rf3 를 보십시오. (20~30초 뒤)
+[어디서] PowerShell (VS Code 아래 터미널, C:\kafkacamp)
+--------------------------------------------------------------------------------
+docker start kafka-2
+# (kafka-1 터미널에서)
+./kafka-topics.sh --bootstrap-server kafka-1:19092 --describe --topic tags_rf3
+
+── 결과 (학생 PC 화면 + Kafka 4.3.1 화면) ──
+kafka-2
+
+Topic: tags_rf3	TopicId: q3Xn0f1aTzGQm8bM2c9vEw	PartitionCount: 3	ReplicationFactor: 3	Configs: min.insync.replicas=2
+	Topic: tags_rf3	Partition: 0	Leader: 1	Replicas: 1,2,3	Isr: 1,3,2	Elr: 	LastKnownElr: 
+	Topic: tags_rf3	Partition: 1	Leader: 3	Replicas: 2,3,1	Isr: 3,1,2	Elr: 	LastKnownElr: 
+	Topic: tags_rf3	Partition: 2	Leader: 3	Replicas: 3,1,2	Isr: 3,1,2	Elr: 	LastKnownElr: 
+
+→ 2번이 돌아와서 놓친 2줄을 따라 적은 뒤 Isr 에 다시 들어왔습니다(1,3,2). 리더는 아직 3 그대로입니다 — Kafka 는 몇 분마다 "원래
+리더(Replicas 의 첫 번호)" 로 되돌리는 정리를 합니다. strict3 를 보내던 프로듀서를 아직 켜 두었다면, 이 순간 저절로 성공하고 WARN 이
+멈춥니다.
+
+--------------------------------------------------------------------------------
+[10-13] kafka-1 에서 exit 로 나온 뒤, 3대짜리를 지우고 1대짜리를 다시 켜십시오.
+[어디서] PowerShell (VS Code 아래 터미널, C:\kafkacamp)
+--------------------------------------------------------------------------------
+exit
+docker compose -f kafka3.yml down
+docker compose -f kafka1.yml start
+
+── 결과 (학생 PC 화면 — 아이디·시각은 PC 마다 다름) ──
+[+] Running 4/4
+ ✔ Container kafka-2        Removed   1.4s
+ ✔ Container kafka-1        Removed   1.5s
+ ✔ Container kafka-3        Removed   1.6s
+ ✔ Network kafka3_default   Removed   0.2s
+[+] Running 1/1
+ ✔ Container kafka  Started        0.6s
+
+→ down = 컨테이너를 지운다 → tags_rf3 · strict3 는 사라집니다(실습용이라 괜찮음). 1대짜리 kafka 는 stop 했던 것을 start
+했으니 STEP 09 까지 만든 tags · tags_live 가 그대로 있습니다. 확인: docker exec kafka /opt/kafka/bin/kafka-
+topics.sh --bootstrap-server localhost:9092 --list

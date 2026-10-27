@@ -1,0 +1,34 @@
+# 2과목 Apache Kafka — Kafka 한 대 (STEP 02 ~ 09 · 11 ~ 17)
+# 켜기:      docker compose -f kafka1.yml up -d
+# 멈추기:    docker compose -f kafka1.yml stop      (토픽 · 메시지 남음)
+# 다시 켜기: docker compose -f kafka1.yml start
+# 지우기:    docker compose -f kafka1.yml down      (토픽 · 메시지 사라짐 — 처음부터 다시 할 때만)
+name: kafka1
+services:
+  kafka:
+    image: apache/kafka:4.3.1
+    hostname: kafka
+    container_name: kafka
+    working_dir: /opt/kafka/bin            # 컨테이너에 들어가면 Kafka 명령 폴더에서 시작
+    ports:
+      - "9092:9092"                        # 내 PC 의 9092 → 컨테이너의 9092 (파이썬 · Spark 가 붙는 문)
+    volumes:
+      - ./data:/data:ro                    # C:\kafkacamp\data 를 컨테이너 안 /data 로 (읽기만)
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller             # 브로커이면서 관리자 (KRaft — ZooKeeper 없음)
+      KAFKA_LISTENERS: PLAINTEXT://:19092,CONTROLLER://:29093,PLAINTEXT_HOST://:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:19092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      CLUSTER_ID: 4L6g3nShT-eMCtK--X86sw
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_SHARE_COORDINATOR_STATE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_SHARE_COORDINATOR_STATE_TOPIC_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_HEAP_OPTS: -Xmx512m -Xms512m                 # 노트북용으로 메모리를 줄인다

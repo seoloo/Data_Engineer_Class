@@ -1,0 +1,264 @@
+================================================================================
+  STEP 05  컨슈머 그룹 — 읽던 자리를 기억하고, 일을 나눠 읽는다
+  C:\kafkacamp\answer\s05_groups.txt
+  터미널 문제입니다. 문제마다 [어디서] 에 적힌 터미널에 명령을 **직접** 칩니다.
+  (복사·붙여넣기 하지 않습니다. 긴 명령은 ↑ 로 불러와 고쳐 칩니다)
+  정답 파일입니다. '── 결과' 아래는 화면에 나오는 모양입니다.
+================================================================================
+
+
+--------------------------------------------------------------------------------
+[05-1] tags3 를 그룹 g05 로 처음부터 읽으십시오. 다 나오고 5초간 새 메시지가 없으면 저절로 멈추게 합니다.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic tags3 --group g05 --from-beginning --timeout-ms 5000
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+The consumer rebalance protocol (KIP-848) is production-ready! Set group.protocol=consumer to try it out. See https://kafka.apache.org/documentation/#consumer_rebalance_protocol
+IN S06
+{"event_id": "M02", "card_id": "C002", "trip_id": "T002", "tag_type": "IN", "station_id": "S06", "tag_time": "2026-10-14 08:03:05", "fare": 0, "recv_time": "2026-10-14 08:03:06"}
+{"event_id": "M09", "card_id": "C002", "trip_id": "T002", "tag_type": "OUT", "station_id": "S01", "tag_time": "2026-10-14 08:24:50", "fare": 1650, "recv_time": "2026-10-14 08:24:51"}
+{"event_id": "M06", "card_id": "C006", "trip_id": "T006", "tag_type": "IN", "station_id": "S08", "tag_time": "2026-10-14 08:12:00", "fare": 0, "recv_time": "2026-10-14 08:12:01"}
+IN S02
+IN S01
+OUT S03
+{"event_id": "M01", "card_id": "C001", "trip_id": "T001", "tag_type": "IN", "station_id": "S01", "tag_time": "2026-10-14 08:01:10", "fare": 0, "recv_time": "2026-10-14 08:01:11"}
+{"event_id": "M03", "card_id": "C003", "trip_id": "T003", "tag_type": "IN", "station_id": "S03", "tag_time": "2026-10-14 08:05:00", "fare": 0, "recv_time": "2026-10-14 08:05:01"}
+{"event_id": "M04", "card_id": "C004", "trip_id": "T004", "tag_type": "IN", "station_id": "S05", "tag_time": "2026-10-14 08:07:30", "fare": 0, "recv_time": "2026-10-14 08:07:31"}
+{"event_id": "M05", "card_id": "C005", "trip_id": "T005", "tag_type": "IN", "station_id": "S01", "tag_time": "2026-10-14 08:09:45", "fare": 0, "recv_time": "2026-10-14 08:09:46"}
+{"event_id": "M07", "card_id": "C005", "trip_id": "T005", "tag_type": "OUT", "station_id": "S02", "tag_time": "2026-10-14 08:12:30", "fare": 1550, "recv_time": "2026-10-14 08:12:31"}
+{"event_id": "M08", "card_id": "C003", "trip_id": "T003", "tag_type": "OUT", "station_id": "S04", "tag_time": "2026-10-14 08:22:15", "fare": 1550, "recv_time": "2026-10-14 08:22:16"}
+{"event_id": "M10", "card_id": "C004", "trip_id": "T004", "tag_type": "OUT", "station_id": "S07", "tag_time": "2026-10-14 08:29:00", "fare": 1650, "recv_time": "2026-10-14 08:29:01"}
+{"event_id": "M11", "card_id": "C001", "trip_id": "T001", "tag_type": "OUT", "station_id": "S03", "tag_time": "2026-10-14 08:31:40", "fare": 1650, "recv_time": "2026-10-14 08:31:41"}
+{"event_id": "M07", "card_id": "C005", "trip_id": "T005", "tag_type": "OUT", "station_id": "S02", "tag_time": "2026-10-14 08:12:30", "fare": 1550, "recv_time": "2026-10-14 08:12:58"}
+Processed a total of 16 messages
+
+→ 16개(STEP 04 의 15 + 04-11 의 1). 파티션별로 묶여 나오는 순서는 PC 마다 다를 수 있습니다. 끝나면서 그룹 g05 의 위치가
+커밋됩니다.
+
+--------------------------------------------------------------------------------
+[05-2] 그룹 목록을 보십시오.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --list
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+console-consumer-17551
+console-consumer-17911
+console-consumer-55221
+console-consumer-57620
+console-consumer-82342
+g05
+
+→ g05 와 함께 console-consumer-숫자 가 몇 개 보일 수 있습니다. --group 없이 켠 콘솔 컨슈머가 임시로 붙인 이름입니다(숫자는 매번
+다름). 이 임시 그룹들은 커밋을 하지 않습니다.
+
+--------------------------------------------------------------------------------
+[05-3] 그룹 g05 의 상태를 자세히 보십시오.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group g05
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+
+Consumer group 'g05' has no active members.
+
+GROUP           TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+g05             tags3           0          3               3               0               -               -               -
+g05             tags3           1          2               2               0               -               -               -
+g05             tags3           2          11              11              0               -               -               -
+g05             tags3           3          0               0               0               -               -               -
+
+→ 맨 위의 has no active members = 지금 켜져 있는 컨슈머가 없다. 파티션마다 CURRENT-OFFSET = LOG-END-OFFSET,
+LAG 0 — 다 읽었다. 숫자 3 · 2 · 11 · 0 이 04-11 의 get-offsets 와 같은지 보십시오. 아무것도 없는 3번 장부도 "0번부터 읽을
+차례" 로 기억됩니다.
+
+--------------------------------------------------------------------------------
+[05-4] 새로 세 줄을 보낸 뒤 g05 를 다시 보십시오. (컨슈머는 켜지 않습니다)
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-console-producer.sh --bootstrap-server localhost:9092 --topic tags3 --reader-property parse.key=true --reader-property key.separator=:
+>C002:OUT S05
+>C006:OUT S08
+>C001:OUT S07
+>(Ctrl+C)
+./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group g05
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+
+Consumer group 'g05' has no active members.
+
+GROUP           TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+g05             tags3           0          3               3               0               -               -               -
+g05             tags3           1          2               3               1               -               -               -
+g05             tags3           2          11              12              1               -               -               -
+g05             tags3           3          0               1               1               -               -               -
+
+→ LAG 가 생겼습니다 — 1번 · 2번 · 3번 장부에 1씩(파티션이 4개가 된 뒤라 C001 → 1번, C002 → 2번, C006 → 3번). 아무도 안
+읽는 동안 쌓인 양입니다. 실시간 시스템에서 LAG 화면을 계속 띄워 두는 이유입니다.
+
+--------------------------------------------------------------------------------
+[05-5] 그룹 g05 로 다시 읽으십시오. 이번에는 --from-beginning 을 붙여도 됩니다.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic tags3 --group g05 --from-beginning --timeout-ms 5000
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+The consumer rebalance protocol (KIP-848) is production-ready! Set group.protocol=consumer to try it out. See https://kafka.apache.org/documentation/#consumer_rebalance_protocol
+OUT S07
+OUT S05
+OUT S08
+Processed a total of 3 messages
+
+→ 새로 온 세 줄만 나옵니다. --from-beginning 은 "책갈피가 없을 때만 처음부터" 라는 뜻이라, 책갈피가 있는 g05 에는 효과가 없습니다. 껐다
+켜도 이어 읽는다 — 그룹의 가장 큰 쓸모입니다.
+
+--------------------------------------------------------------------------------
+[05-6] g05 를 다시 보십시오.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group g05
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+
+Consumer group 'g05' has no active members.
+
+GROUP           TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+g05             tags3           0          3               3               0               -               -               -
+g05             tags3           1          3               3               0               -               -               -
+g05             tags3           2          12              12              0               -               -               -
+g05             tags3           3          1               1               0               -               -               -
+
+→ LAG 가 다시 모두 0.
+
+--------------------------------------------------------------------------------
+[05-7] g05 의 책갈피를 처음으로 되돌리는 계획만 보십시오. (--dry-run = 실제로 바꾸지 않음)
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group g05 --topic tags3 --reset-offsets --to-earliest --dry-run
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+
+GROUP           TOPIC           PARTITION  NEW-OFFSET
+g05             tags3           0          0
+g05             tags3           1          0
+g05             tags3           2          0
+g05             tags3           3          0
+
+→ NEW-OFFSET 이 전부 0. 계획만 보여 주고 바꾸지는 않았습니다. 큰 시스템에서는 언제나 dry-run 으로 먼저 봅니다.
+
+--------------------------------------------------------------------------------
+[05-8] 이번에는 실제로 되돌리고, 다시 읽으십시오.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group g05 --topic tags3 --reset-offsets --to-earliest --execute
+./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic tags3 --group g05 --timeout-ms 5000 --max-messages 100
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+
+GROUP           TOPIC           PARTITION  NEW-OFFSET
+g05             tags3           0          0
+g05             tags3           1          0
+g05             tags3           2          0
+g05             tags3           3          0
+The consumer rebalance protocol (KIP-848) is production-ready! Set group.protocol=consumer to try it out. See https://kafka.apache.org/documentation/#consumer_rebalance_protocol
+IN S06
+{"event_id": "M02", "card_id": "C002", "trip_id": "T002", "tag_type": "IN", "station_id": "S06", "tag_time": "2026-10-14 08:03:05", "fare": 0, "recv_time": "2026-10-14 08:03:06"}
+{"event_id": "M09", "card_id": "C002", "trip_id": "T002", "tag_type": "OUT", "station_id": "S01", "tag_time": "2026-10-14 08:24:50", "fare": 1650, "recv_time": "2026-10-14 08:24:51"}
+{"event_id": "M06", "card_id": "C006", "trip_id": "T006", "tag_type": "IN", "station_id": "S08", "tag_time": "2026-10-14 08:12:00", "fare": 0, "recv_time": "2026-10-14 08:12:01"}
+IN S02
+OUT S07
+IN S01
+OUT S03
+{"event_id": "M01", "card_id": "C001", "trip_id": "T001", "tag_type": "IN", "station_id": "S01", "tag_time": "2026-10-14 08:01:10", "fare": 0, "recv_time": "2026-10-14 08:01:11"}
+{"event_id": "M03", "card_id": "C003", "trip_id": "T003", "tag_type": "IN", "station_id": "S03", "tag_time": "2026-10-14 08:05:00", "fare": 0, "recv_time": "2026-10-14 08:05:01"}
+{"event_id": "M04", "card_id": "C004", "trip_id": "T004", "tag_type": "IN", "station_id": "S05", "tag_time": "2026-10-14 08:07:30", "fare": 0, "recv_time": "2026-10-14 08:07:31"}
+{"event_id": "M05", "card_id": "C005", "trip_id": "T005", "tag_type": "IN", "station_id": "S01", "tag_time": "2026-10-14 08:09:45", "fare": 0, "recv_time": "2026-10-14 08:09:46"}
+{"event_id": "M07", "card_id": "C005", "trip_id": "T005", "tag_type": "OUT", "station_id": "S02", "tag_time": "2026-10-14 08:12:30", "fare": 1550, "recv_time": "2026-10-14 08:12:31"}
+{"event_id": "M08", "card_id": "C003", "trip_id": "T003", "tag_type": "OUT", "station_id": "S04", "tag_time": "2026-10-14 08:22:15", "fare": 1550, "recv_time": "2026-10-14 08:22:16"}
+{"event_id": "M10", "card_id": "C004", "trip_id": "T004", "tag_type": "OUT", "station_id": "S07", "tag_time": "2026-10-14 08:29:00", "fare": 1650, "recv_time": "2026-10-14 08:29:01"}
+{"event_id": "M11", "card_id": "C001", "trip_id": "T001", "tag_type": "OUT", "station_id": "S03", "tag_time": "2026-10-14 08:31:40", "fare": 1650, "recv_time": "2026-10-14 08:31:41"}
+{"event_id": "M07", "card_id": "C005", "trip_id": "T005", "tag_type": "OUT", "station_id": "S02", "tag_time": "2026-10-14 08:12:30", "fare": 1550, "recv_time": "2026-10-14 08:12:58"}
+OUT S05
+OUT S08
+Processed a total of 19 messages
+
+→ 이번에는 19개 전부가 다시 나옵니다. 메시지는 지워진 적이 없고, 책갈피만 옮겼기 때문입니다. 다시 처리하기(재처리) 가 이렇게 쉽습니다 — 그래서 처리하는
+쪽이 "두 번 받아도 괜찮게" 만들어져 있어야 합니다(STEP 11 · 15).
+
+[05-8 바꿔 보기 ①] --to-earliest 대신 --shift-by -1 로 되돌리면?
+./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group g05 --topic tags3 --reset-offsets --shift-by -1 --execute
+./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic tags3 --group g05 --timeout-ms 5000 --formatter-property print.partition=true --formatter-property print.offset=true
+
+── 결과 ──
+
+GROUP           TOPIC           PARTITION  NEW-OFFSET
+g05             tags3           0          2
+g05             tags3           1          2
+g05             tags3           2          11
+g05             tags3           3          0
+The consumer rebalance protocol (KIP-848) is production-ready! Set group.protocol=consumer to try it out. See https://kafka.apache.org/documentation/#consumer_rebalance_protocol
+Partition:0	Offset:2	{"event_id": "M09", "card_id": "C002", "trip_id": "T002", "tag_type": "OUT", "station_id": "S01", "tag_time": "2026-10-14 08:24:50", "fare": 1650, "recv_time": "2026-10-14 08:24:51"}
+Partition:1	Offset:2	OUT S07
+Partition:2	Offset:11	OUT S05
+Partition:3	Offset:0	OUT S08
+Processed a total of 4 messages
+
+→ 이래서 — 장부마다 책갈피를 한 칸씩 뒤로 옮겨서, 장부마다 마지막 한 개씩 — 4개가 다시 나옵니다(파티션 0 · 1 · 2 · 3 의 끝 번호 하나씩).
+shift-by 는 "지금 자리에서 N 칸", to-earliest 는 "맨 처음", to-offset 5 는 "모든 장부의 5번". 되돌리는 단위가
+장부(파티션)마다 라는 것을 눈으로 확인하십시오.
+
+--------------------------------------------------------------------------------
+[05-9] 같은 그룹 g05b 로 컨슈머 둘을 두 터미널에 켜 두고, 세 번째 터미널에서 g05b 를 보십시오.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+# 터미널 ① 과 ② 에서 같은 명령 (켜 둔 채로)
+./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic tags3 --group g05b --from-beginning
+# 터미널 ③
+./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group g05b
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+
+GROUP           TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                       HOST            CLIENT-ID
+g05b            tags3           0          3               3               0               console-consumer-7d69733c1f628335f8ac5395b8f52c87 /127.0.0.1      console-consumer
+g05b            tags3           1          3               3               0               console-consumer-7d69733c1f628335f8ac5395b8f52c87 /127.0.0.1      console-consumer
+g05b            tags3           2          12              12              0               console-consumer-ae62c599f84664b21cd58893733d4405 /127.0.0.1      console-consumer
+g05b            tags3           3          1               1               0               console-consumer-ae62c599f84664b21cd58893733d4405 /127.0.0.1      console-consumer
+
+→ CONSUMER-ID 가 두 개, 장부 4권을 2권씩 나눠 맡았습니다. 터미널 ① 과 ② 에 찍힌 메시지를 비교해 보면 겹치는 것이 없습니다. 한 명을
+Ctrl+C 로 끄고 다시 describe 하면, 남은 한 명이 4권을 다 맡습니다(재조정, rebalance). 아이디와 HOST 는 PC 마다 다릅니다.
+
+--------------------------------------------------------------------------------
+[05-10] 다른 그룹 g05c 로 처음부터 읽고, 몇 개인지 보십시오.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic tags3 --group g05c --from-beginning --timeout-ms 5000 --formatter-property print.value=false
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+The consumer rebalance protocol (KIP-848) is production-ready! Set group.protocol=consumer to try it out. See https://kafka.apache.org/documentation/#consumer_rebalance_protocol
+Processed a total of 19 messages
+
+→ print.value=false 로 값은 숨기고 개수만 봅니다. 19개 전부 — g05 와 g05b 가 무엇을 읽었든 g05c 는 자기 책갈피로 처음부터 다
+받습니다. 그룹 = 독립된 독자.
+
+--------------------------------------------------------------------------------
+[05-11] 일부러 틀려 보십시오. 없는 그룹 nope 을 describe 하십시오.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group nope
+
+── 결과 (Kafka 4.3.1 화면 형식 — 작성 환경에서 같은 동작을 재현) ──
+
+Error: Consumer group 'nope' does not exist.
+
+→ does not exist — 그런 그룹은 없다. 그룹은 누군가 그 이름으로 한 번 읽어야 생깁니다.
+
+--------------------------------------------------------------------------------
+[05-12] 컨테이너에서 나오십시오.
+[어디서] kafka 컨테이너 안 (docker exec -it kafka bash 로 들어간 터미널)
+--------------------------------------------------------------------------------
+exit
+
+── 결과 (학생 PC 화면) ──
+exit
+PS C:\kafkacamp>

@@ -16,6 +16,12 @@ derby.log
 04_sparkcamp/out/
 04_sparkcamp/ivy/
 04_sparkcamp/lake/
+05_kafkacamp/tmp/
+05_kafkacamp/out/
+05_kafkacamp/ivy/
+05_kafkacamp/lake/
+05_kafkacamp/jars/
+05_kafkacamp/chk/
 
 # Local DB / secrets
 db.sqlite3

@@ -10,12 +10,13 @@ $Map = [ordered]@{
     'C:\jsonpd'    = '02_jsonpd'
     'C:\dstd'      = '03_dstd'
     'C:\sparkcamp' = '04_sparkcamp'
+    'C:\kafkacamp' = '05_kafkacamp'
 }
 
 # Directory names skipped at any depth
 $ExcludeDirs = @(
     '.venv', '.venv-1', 'venv', '__pycache__', '.ipynb_checkpoints', '.git',
-    'tmp', 'spark-warehouse', 'out', 'metastore_db', 'ivy', 'lake'
+    'tmp', 'spark-warehouse', 'out', 'metastore_db', 'ivy', 'lake', 'jars', 'chk'
 )
 # File patterns skipped
 $ExcludeFiles = @('*.pyc', '*.crc', 'db.sqlite3', '.env', 'derby.log', '*.log', '*.exe', '*.dll')
