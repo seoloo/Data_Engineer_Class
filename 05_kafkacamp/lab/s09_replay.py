@@ -110,6 +110,14 @@ print(replay("data/stream_src/part_01.jsonl", "tags_live", 6000),    \
 
 # %% [09-4 바꿔 보기 ①] speed 를 6000 으로(10배 더 빠르게) 바꾸면?
 #    위 정답을 이렇게 바꾸면 어떻게 보일지 먼저 예상하고, 직접 쳐서 확인하십시오.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+t0 = time.time()
+print(replay("data/stream_src/part_01.jsonl", "speed_test", 6000), "줄,", round(time.time() - t0, 1), "초")
+# ── 결과 ──
+# 201 줄, 9.4 초
+# → 이래서 — 201 줄, 약 9초 — 10배 빠르게 했는데 시간은 조금밖에 안 줄었습니다. 기다리는 시간은 3.2초 → 0.3초로 줄었지만, 남은 9초는
+# 줄마다의 flush 왕복과 sleep 최소 단위입니다. speed 를 아무리 올려도 이 바닥 밑으로는 못 내려갑니다 — 이렇게 전체 속도를 붙잡고 있는 가장
+# 느린 곳을 병목이라고 부릅니다(STEP 17). 수업에서는 600 정도가 눈으로 보기 좋습니다. (speed_test 토픽은 자동으로 생깁니다)
 
 
 
@@ -139,8 +147,37 @@ print(sum(counts("tags_live")))
 
 
 # %% [09-7] 새 그룹으로 tags 를 전부 읽어, 1과목과 같은 숫자가 나오는지 확인하십시오 — 줄 수 · 승하차별 줄 수 · 이벤트 가짓수.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+import pandas as pd
+c = Consumer({"bootstrap.servers": BOOT, "group.id": "g09check", "auto.offset.reset": "earliest"})
+c.subscribe(["tags"])
+rows, empty = [], 0
+while empty < 5:
+    m = c.poll(1.0)
+    if m is None:
+        empty += 1
+        continue
+    empty = 0
+    rows.append(json.loads(m.value()))
+c.close()
+df = pd.DataFrame(rows)
+print(len(df))
+print(df.groupby("tag_type").size().to_dict())
+print(df["event_id"].nunique())
+# ── 결과 ──
+# 2008
+# {'IN': 1012, 'OUT': 996}
+# 1988
+# → 2008 · {IN 1012, OUT 996} · 1988 — 1과목 08-1 · 08-10 과 똑같습니다. 파일 → Kafka → 파이썬을 거쳐도 한
+# 줄도 늘거나 줄지 않았습니다. 그리고 재전송 20줄은 그대로 들어 있습니다.
 
 
 
 
 # %% [09-8] 일부러 틀려 보십시오. 없는 조각 send_part(11) 을 보내 보십시오.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+send_part(11)
+# ── 결과 (오류 — 일부러 틀린 것) ──
+# FileNotFoundError: [Errno 2] No such file or directory: 'data/stream_src/part_11.jsonl'
+# → FileNotFoundError — part_11.jsonl 은 없다(조각은 1~10). 오류 메시지의 경로를 보고 무엇이 없는지 찾습니다.
+

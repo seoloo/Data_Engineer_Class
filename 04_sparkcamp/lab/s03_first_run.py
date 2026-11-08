@@ -74,7 +74,12 @@ print(spark.sparkContext.uiWebUrl)
 
 # %% [03-7] 일부러 틀려 보십시오. count 를 cont 로 잘못 쳐 보십시오.
 # [셀 설명] 존재하지 않는 메서드를 호출했을 때 오류 메시지에서 오타를 찾는 연습이다.
-# [동작] 현재 셀은 비어 있다. count와 cont의 차이를 확인하고, 의도한 오류는 다른 정상 셀과 따로 실행한다.
+# [동작] 수업 시간에 넘어가 비어 있던 셀을 정답 기준으로 보충했다. count와 cont의 차이를 확인하고, 의도한 오류는 다른 정상 셀과 따로 실행한다.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+spark.range(10).cont()
+# ── 결과 (오류 — 일부러 틀린 것) ──
+# PySparkAttributeError: [ATTRIBUTE_NOT_SUPPORTED] Attribute `cont` is not supported.
+# → 빨간 글씨가 길게 나와도 맨 아래 한 줄만 읽습니다. ATTRIBUTE_NOT_SUPPORTED = "그런 기능은 없다" 입니다. 오타입니다.
 
 
 

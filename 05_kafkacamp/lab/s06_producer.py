@@ -73,6 +73,18 @@ p.flush()
 
 # %% [06-4 바꿔 보기 ①] 키 없이 보내면? — 같은 11줄을 key 없이 새 토픽 mini_nokey 에
 #    위 정답을 이렇게 바꾸면 어떻게 보일지 먼저 예상하고, 직접 쳐서 확인하십시오.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+admin.create_topics([NewTopic("mini_nokey", num_partitions=3, replication_factor=1)])["mini_nokey"].result()
+parts = []
+for line in lines:
+    p.produce("mini_nokey", value=line.strip(), on_delivery=lambda e, m: parts.append(m.partition()))
+p.flush()
+print(sorted(parts))
+# ── 결과 ──
+# [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2]
+# → 이래서 — 키가 없으면 라이브러리가 장부를 마음대로 고릅니다 — 한 장부에 몰아서 보내다가(sticky, 묶어 보내기 효율 때문) 다른 장부로 옮기기도
+# 합니다. 강사 PC 에서는 세 장부에 4 · 4 · 3 으로 흩어졌고, 실행할 때마다 다릅니다(한 장부에 다 몰리기도 함). 같은 카드의 승차와 하차가 어느
+# 장부로 갈지 보장이 없다는 뜻입니다. 순서가 중요한 데이터에는 반드시 키를 붙입니다. 순서가 상관없는 로그(웹 접속 기록 등)는 키 없이 보내도 됩니다.
 
 
 
@@ -81,7 +93,7 @@ p.flush()
 c = Consumer({"bootstrap.servers" : BOOT, "group.id" : "counter"})
 for part in range(3):
     lo, hi = c.get_watermark_offsets(TopicPartition("mini", part))
-    print("파티션", part, ":", hi - 10, "개")
+    print("파티션", part, ":", hi - lo, "개")   # [수정] hi - 10 → hi - lo
     # Hi(끝 번호) - lo(처음번호) = 쌓인 개수
 c.close()
 
@@ -98,6 +110,12 @@ print("flush 후 대기열 : ", len(p))
 
 
 # %% [06-7] 일부러 틀려 보십시오. 사전을 json.dumps 없이 그대로 value 에 넣어 보십시오.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+p.produce("mini", key=first["card_id"], value=first)
+# ── 결과 (오류 — 일부러 틀린 것) ──
+# TypeError: a bytes-like object is required, not 'dict'
+# → TypeError — value 는 글자나 바이트여야 한다. Kafka 에는 "사전" 이라는 개념이 없습니다. 보내기 전에 직렬화(serialize) —
+# 약속한 모양의 글자로 바꾸기 — 를 해야 합니다. 이 과목의 약속은 JSON 한 줄입니다.
 
 
 

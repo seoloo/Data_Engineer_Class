@@ -14,6 +14,7 @@
 
 - `04_sparkcamp/lab` 은 내가 푼 실습, `04_sparkcamp/answer` 는 정답입니다.
 - `05_kafkacamp`도 `lab`과 `answer`로 나뉩니다. Python 파일은 셀 단위로, `.txt` 문제는 안내된 터미널에서 실습합니다. Docker 구성과 실행 명령은 [kafka1.yml](05_kafkacamp/kafka1.yml), [s02_docker.txt](05_kafkacamp/lab/s02_docker.txt)를 참고하세요.
+- 두 과목의 `lab`에서 수업 시간에 넘어가 비어 있던 셀과 터미널 문제는 `answer` 정답을 기준으로 채웠고, `[보충]` 표시를 달았습니다. 그 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다. 보충하지 않은 셀이 내가 수업에서 직접 쓴 코드입니다. 그중 오타를 고친 줄에는 `[수정]` 주석으로 원래 값을 남겼습니다.
 - Spark STEP 03~14의 `lab`에는 각 셀의 목적과 함수 동작을 설명하는 `# [셀 설명]`, `# [동작]` 주석이 있습니다. 미작성 셀의 실습 의도와 현재 코드에서 확인할 점도 함께 적었습니다.
 - 과목 오리엔테이션 슬라이드 등 강의 자료는 [class_materials](class_materials)에 있습니다.
 - 실행 환경 준비는 각 폴더의 `시작하기` 문서와 [setup/hadoop.md](setup/hadoop.md)를 보세요.

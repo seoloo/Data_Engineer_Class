@@ -109,12 +109,39 @@ spark.sql("""
 
 
 # %% [12-9] 0번 파티션의 0~9번 오프셋만 읽으십시오. 장부를 직접 고르는 assign 과 오프셋 JSON 을 씁니다.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+part0 = (spark.read.format("kafka")
+         .option("kafka.bootstrap.servers", BOOT)
+         .option("assign", """{"tags":[0]}""")
+         .option("startingOffsets", """{"tags":{"0":0}}""")
+         .option("endingOffsets", """{"tags":{"0":10}}""")
+         .load())
+print(part0.count())
+part0.select("partition", "offset").agg(F.min("offset"), F.max("offset")).show()
+# ── 결과 ──
+# 10
+# +-----------+-----------+
+# |min(offset)|max(offset)|
+# +-----------+-----------+
+# |          0|          9|
+# +-----------+-----------+
+# → 10줄, offset 0 ~ 9. endingOffsets 는 그 번호 바로 앞까지(10 은 안 들어감)입니다. subscribe 대신 assign 으로
+# 장부를 골랐습니다(07-9 의 파이썬 assign 과 같음). subscribe 로 하면서 오프셋 JSON 에 장부 하나만 적으면 "모든 파티션을
+# 적어라"(you must specify all TopicPartitions) 오류가 납니다. "어제 장애 시각의 오프셋 구간만 다시 꺼내 보기" 같은 조사를
+# 이렇게 합니다.
 
 
 
 
 
 # %% [12-10] 일부러 틀려 보십시오. subscribe 를 빼고 읽어 보십시오.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+spark.read.format("kafka").option("kafka.bootstrap.servers", BOOT).load()
+# ── 결과 (오류 — 일부러 틀린 것. Spark 4.1.3 의 오류 문장) ──
+# IllegalArgumentException: One of the following options must be specified for Kafka source: subscribe, subscribepattern, assign. See the docs for more details.
+# → One of the following options must be specified for Kafka source: subscribe,
+# subscribepattern, assign — 무엇을 읽을지 안 정했다. 바이브 코딩으로 받은 Spark-Kafka 코드에서 옵션 이름
+# 오타(subcribe)가 나면 이 오류가 납니다.
 
 
 

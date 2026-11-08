@@ -34,11 +34,11 @@ def where(err, msg):
     
 
 p_default = Producer({"bootstrap.servers" : BOOT})
-p_default.produce("tag3", key = "C001", value = "from python default", on_delivery = where)
+p_default.produce("tags3", key = "C001", value = "from python default", on_delivery = where)
 p_default.flush()   # 몇 개 남았는지
 
 p = Producer({"bootstrap.servers" : BOOT, "partitioner" : "murmur2_random"})
-p.produce("tag3", key = "C001", value = "from python murmur2", on_delivery = where)
+p.produce("tags3", key = "C001", value = "from python murmur2", on_delivery = where)   # [수정] 토픽 이름 tag3 → tags3 (위 줄도 함께)
 p.flush()
 
 
@@ -66,7 +66,7 @@ def counts(topic):
     c.close()
     return out
 
-counts("tag3")
+counts("tags3")   # [수정] tag3 → tags3
 
 # %% [08-3] 파티션 3개짜리 토픽 by_card 와 by_station 을 만들고, 하루 로그 2,008줄을 각각 카드 번호 키 · 역 코드 키로 보내십시오.
 for t in ["by_card", "by_station"]:
@@ -122,6 +122,11 @@ print("by_station6      :", counts("by_station6"))
 
 
 # %% [08-6] 일부러 틀려 보십시오. 숫자(정수)를 키로 넣어 보십시오.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+p.produce("by_card", key=401, value="x")
+# ── 결과 (오류 — 일부러 틀린 것) ──
+# TypeError: a bytes-like object is required, not 'int'
+# → TypeError — 키도 값과 마찬가지로 글자나 바이트만. 카드 번호가 숫자라도 str(401) 로 바꿔 넣습니다.
 
 
 

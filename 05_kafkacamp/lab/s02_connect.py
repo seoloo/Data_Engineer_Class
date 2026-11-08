@@ -25,8 +25,22 @@ admin.list_topics(timeout=5).cluster_id
 
 
 # %% [02-6] 지금 Kafka 에 있는 토픽 목록을 보십시오.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+admin.list_topics(timeout=5).topics
+# ── 결과 ──
+# {}
+# → {} — 아직 아무것도 없습니다. 다음 STEP 에서 첫 토픽을 만듭니다.
 
 
 
 
 # %% [02-7] 일부러 틀려 보십시오. 주소를 localhost:9093 (없는 문)으로 바꿔 붙어 보십시오.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+bad = AdminClient({"bootstrap.servers": "localhost:9093"})
+bad.list_topics(timeout=5)
+# ── 결과 (오류 — 일부러 틀린 것) ──
+# KafkaException: KafkaError{code=_TRANSPORT,val=-195,str="Failed to get metadata: Local: Broker transport failure"}
+# → Broker transport failure — 그 주소에 Kafka 가 없다. 5초(timeout=5) 동안 문을 두드리다가 포기합니다. 수업 중에 이
+# 오류가 나면 ① Docker Desktop 이 켜져 있나 ② docker ps 에 kafka 가 Up 인가 ③ 주소가 localhost:9092 인가 세
+# 가지를 봅니다.
+

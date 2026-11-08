@@ -93,7 +93,7 @@ st = spark.read.csv("data/stations.csv", header = True)
         .save()
 )
 
-counts("staiton_cnt")
+counts("station_cnt")   # [수정] staiton_cnt → station_cnt
 
 
 
@@ -138,8 +138,29 @@ counts("win5")
 
 
 # %% [14-6] 일부러 틀려 보십시오. 14-5 의 쿼리를 checkpointLocation 없이 켜 보십시오.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+(win.writeStream.format("kafka")
+     .option("kafka.bootstrap.servers", BOOT)
+     .option("topic", "win5")
+     .outputMode("update")
+     .start())
+# ── 결과 (오류 — 일부러 틀린 것. Spark 4.1.3 의 오류 문장) ──
+# AnalysisException: checkpointLocation must be specified either through option("checkpointLocation", ...) or SparkSession.conf.set("spark.sql.streaming.checkpointLocation", ...).
+# → checkpointLocation must be specified — 체크포인트(어디까지 했나 메모) 없이 Kafka 로 쓰는 스트리밍은 켤 수 없다.
+# 1과목 STEP 18 의 "계산서 옆 메모" 입니다.
 
 
 
 
 # %% [14-7] 일부러 틀려 보십시오. value 칸 없이(이름이 v) 보내 보십시오.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+(boards.select(F.col("station_id").alias("key"), F.col("boards").cast("string").alias("v"))
+    .write.format("kafka")
+    .option("kafka.bootstrap.servers", BOOT)
+    .option("topic", "station_cnt")
+    .save())
+# ── 결과 (오류 — 일부러 틀린 것. Spark 4.1.3 의 오류 문장) ──
+# AnalysisException: Required attribute 'value' not found
+# → Required attribute 'value' not found — Kafka 로 보낼 내용(value)이 없다. 칸 이름을 정확히 value 로 붙여야
+# 합니다(alias("value")).
+

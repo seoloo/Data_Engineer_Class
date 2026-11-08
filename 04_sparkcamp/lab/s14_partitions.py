@@ -143,9 +143,9 @@ clean.groupBy("card_id").count().orderBy(F.col("count").desc(), "card_id").show(
 
 # %% [14-11] 캐시를 풀고, 설정을 기본으로 되돌리십시오.
 # [셀 설명] 캐시를 해제하고 실험에서 바꾼 설정을 다음 실습 전에 되돌린다.
-# [동작] unpersist는 저장된 결과를 해제한다. 현재 set의 spark.sql.partitions는 오타이며, 의도한 복원 키는 아래 get에서도 읽는 spark.sql.shuffle.partitions다.
+# [동작] unpersist는 저장된 결과를 해제한다. 처음에 set한 spark.sql.partitions는 오타라 셔플 설정이 되돌아가지 않았으므로, get과 같은 spark.sql.shuffle.partitions로 고쳤다.
 clean.unpersist()
-spark.conf.set("spark.sql.partitions", "200")
+spark.conf.set("spark.sql.shuffle.partitions", "200")   # [수정] spark.sql.partitions → spark.sql.shuffle.partitions
 print(spark.conf.get("spark.sql.shuffle.partitions"))
 
 

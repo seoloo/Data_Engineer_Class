@@ -103,7 +103,12 @@ day.select("event_id", "trip_id", "tag_type", "station_id", "tag_time").show(5)
 
 # %% [05-10] 일부러 틀려 보십시오. 파일 이름을 tags_dya.jsonl 로 잘못 쳐서 읽어 보십시오.
 # [셀 설명] 파일 경로를 잘못 적었을 때 경로 관련 오류를 확인하는 연습이다.
-# [동작] 현재 셀은 비어 있다. 파일 이름 철자와 작업 디렉터리를 점검하며, 상대 경로는 준비 셀에서 정한 C:\sparkcamp를 기준으로 읽힌다.
+# [동작] 수업 시간에 넘어가 비어 있던 셀을 정답 기준으로 보충했다. 파일 이름 철자와 작업 디렉터리를 점검하며, 상대 경로는 준비 셀에서 정한 C:\sparkcamp를 기준으로 읽힌다.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+spark.read.json("data/tags_dya.jsonl")
+# ── 결과 (오류 — 일부러 틀린 것) ──
+# AnalysisException: [PATH_NOT_FOUND] Path does not exist: file:/C:/sparkcamp/data/tags_dya.jsonl. SQLSTATE: 42K03
+# → PATH_NOT_FOUND — 경로가 없다. 메시지 안에 Spark 가 찾은 전체 경로가 적혀 있습니다. 거기서 오타를 찾으십시오.
 
 
 

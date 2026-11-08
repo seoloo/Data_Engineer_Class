@@ -80,6 +80,12 @@ print("Parquet  :", du("out/s15/clean_parquet"), "KB")
 
 
 # %% [15-6] 일부러 틀려 보십시오. 같은 경로에 Parquet 을 한 번 더 쓰십시오.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+clean.write.parquet("out/s15/clean_parquet")
+# ── 결과 (오류 — 일부러 틀린 것) ──
+# AnalysisException: [PATH_ALREADY_EXISTS] Path file:/C:/sparkcamp/out/s15/clean_parquet already exists. Set mode as "overwrite" to overwrite the existing path. SQLSTATE: 42K04
+# → PATH_ALREADY_EXISTS. 기본 mode 는 "있으면 멈춘다" 입니다. 실수로 덮어쓰는 사고를 막아 줍니다. 메시지가 mode 를
+# overwrite 로 하라고 알려 줍니다.
 
 
 

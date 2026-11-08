@@ -123,13 +123,45 @@ spark.read.format("delta").option("versionAsOf", 1).load("lake/bronze/tags").cou
 
 
 # %% [16-10] 역 마스터를 Delta 로 lake/ref/stations 에 저장하고, 서울역(S05)의 이름을 서울역(KTX) 로 고친(UPDATE) 뒤 확인하십시오.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+st.write.format("delta").mode("overwrite").save("lake/ref/stations")
+ref = DeltaTable.forPath(spark, "lake/ref/stations")
+ref.update(condition="station_id = 'S05'", set={"station_nm": "'서울역(KTX)'"})
+spark.read.format("delta").load("lake/ref/stations").filter("station_id IN ('S04','S05')").show()
+# ── 결과 (Delta 화면 — 숫자는 Delta 테이블로 검산) ──
+# +----------+-----------+-----+----+
+# |station_id| station_nm| line|  gu|
+# +----------+-----------+-----+----+
+# |       S04|       시청|1호선|중구|
+# |       S05|서울역(KTX)|1호선|중구|
+# +----------+-----------+-----+----+
+# → set 의 새 값은 SQL 식이라 글자는 작은따옴표를 한 번 더 씁니다("'서울역(KTX)'"). 빼먹으면 서울역(KTX) 라는 칸을 찾다가 오류가
+# 납니다.
 
 
 
 
 # %% [16-11] 일부러 틀려 보십시오. Bronze 에 칸이 하나 더 있는(hh) 데이터를 append 하십시오.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+raw_text.withColumn("hh", F.substring("tag_time", 12, 2)) \
+   .write.format("delta").mode("append").save("lake/bronze/tags")
+# ── 결과 (Delta 화면 — 공식 문서 기준) ──
+# AnalysisException: [DELTA_METADATA_MISMATCH] A schema mismatch detected when writing to the Delta table (Table ID: 3c1e…).
+# To enable schema migration using DataFrameWriter or DataStreamWriter, please set:
+# '.option("mergeSchema", "true")'.
+# → 스키마가 다르다며 막습니다(schema enforcement). Parquet 폴더였다면 그냥 들어가서 나중에 읽을 때 엉망이 됩니다. 정말 칸을 늘려야
+# 할 때만 .option("mergeSchema", "true") 를 붙입니다. (메시지 앞의 [ ] 이름은 Delta 버전에 따라 조금 다를 수 있습니다)
 
 
 
 
 # %% [16-12] 어떤 폴더가 Delta 테이블인지 물어보십시오 — Delta 로 쓴 것과 STEP 15 의 Parquet 폴더.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+print(DeltaTable.isDeltaTable(spark, "lake/bronze/tags"))
+print(DeltaTable.isDeltaTable(spark, "out/s15/clean_parquet"))
+# ── 결과 (Delta 화면) ──
+# True
+# False
+# → True · False. 장부(_delta_log)가 있어야 Delta 입니다. 이 질문을 STEP 19 에서 "처음이면 새로 만들고, 있으면 MERGE"
+# 를 가를 때 씁니다.
+

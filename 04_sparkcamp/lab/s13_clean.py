@@ -131,13 +131,13 @@ trips.filter(F.col("alight_st").isNull()).count()
 
 # %% [13-9] 이동 시간(분)을 travel_min 칸으로 만들고, 평균 · 최소 · 최대를 구하십시오.
 # [셀 설명] 하차 시각에서 승차 시각을 빼 이동 시간을 분 단위로 계산하고 통계를 구한다.
-# [동작] NULL 이동 시간은 avg·min·max 집계에서 제외된다. 현재 max라는 열도 F.min으로 계산하므로 이름만 최대값이며 실제 최대값은 F.max가 필요하다.
+# [동작] NULL 이동 시간은 avg·min·max 집계에서 제외된다. 처음에는 max 열도 F.min으로 계산해 최소값이 찍혔으므로 F.max로 고쳤다.
 trips = trips.withColumn("travel_min",
             F.round((F.unix_timestamp("alight_time") - F.unix_timestamp("board_time")) / 60, 1))
 
 trips.agg(F.round(F.avg("travel_min"), 1).alias("avg"),
             F.min("travel_min").alias("min"),
-            F.min("travel_min").alias("max")).show()
+            F.max("travel_min").alias("max")).show()   # [수정] F.min → F.max
 
 # %% [13-10] 하차는 있는데 승차가 없는 이동이 있는지 찾으십시오. (승차 태그가 S99 로 격리된 경우)
 # [셀 설명] 하차는 있지만 정상 승차가 없는 이동을 left_anti로 찾는다.
@@ -179,4 +179,19 @@ print("trips : ", trips.count())
 
 # %% [13-13] NULL 함정 확인 — 역 코드가 비어 있는 가짜 이벤트 한 줄을 만들어, isNull() 이 없는 규칙과 있는 규칙으로 각각 정상·격리를 세어 보십시오.
 # [셀 설명] NULL 역 코드가 있는 이벤트를 직접 만들어 격리 조건의 누락을 확인하는 셀이다.
-# [동작] 현재 셀은 비어 있다. NULL의 isin 결과와 그 부정은 NULL일 수 있고 filter는 TRUE만 통과시키므로, isNull 없는 조건에서는 양쪽 분류에서 빠질 수 있다.
+# [동작] 수업 시간에 넘어가 비어 있던 셀을 정답 기준으로 보충했다. NULL의 isin 결과와 그 부정은 NULL일 수 있고 filter는 TRUE만 통과시키므로, isNull 없는 조건에서는 양쪽 분류에서 빠질 수 있다.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+probe = spark.createDataFrame([("X1", None, "2026-10-14 08:00:00")],
+                              "event_id STRING, station_id STRING, tag_time STRING") \
+              .withColumn("tag_time", F.to_timestamp("tag_time"))
+
+no_null  = (~F.col("station_id").isin(valid_ids)) | F.col("tag_time").isNull()      # isNull 없음
+print("isNull 없는 규칙 → 격리", probe.filter(no_null).count(),  "/ 정상", probe.filter(~no_null).count())
+print("isNull 있는 규칙 → 격리", probe.filter(is_bad).count(),   "/ 정상", probe.filter(~is_bad).count())
+# ── 결과 ──
+# isNull 없는 규칙 → 격리 0 / 정상 0
+# isNull 있는 규칙 → 격리 1 / 정상 0
+# → isNull 이 없으면 격리 0 · 정상 0 — 한 줄이 어디에도 없습니다. null 이 isin 을 만나면 결과가 참도 거짓도 아닌 null 이 되고,
+# filter 는 null 을 통과시키지 않기 때문입니다. 13-6 의 더하기가 조용히 안 맞게 됩니다. isNull 을 먼저 따로 물으면 격리 1 로 바르게
+# 갑니다. 배포 데이터에는 이런 줄이 없지만, 실제 앱 데이터에는 반드시 나옵니다 — 팀 프로젝트의 격리 규칙에도 칸마다 isNull 을 먼저 넣으십시오.
+

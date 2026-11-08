@@ -140,7 +140,13 @@ spark.sql("""
 
 # %% [11-9] 일부러 틀려 보십시오. 표 이름을 tagz 로 잘못 쓰십시오.
 # [셀 설명] 등록하지 않은 뷰 이름을 사용했을 때 표·뷰를 찾지 못하는 오류를 확인한다.
-# [동작] 현재 셀은 비어 있다. tagz 오타와 임시 뷰 미등록은 모두 이름 확인이 필요한 원인이므로 현재 세션 상태와 함께 점검한다.
+# [동작] 수업 시간에 넘어가 비어 있던 셀을 정답 기준으로 보충했다. tagz 오타와 임시 뷰 미등록은 모두 이름 확인이 필요한 원인이므로 현재 세션 상태와 함께 점검한다.
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+spark.sql("SELECT * FROM tagz")
+# ── 결과 (오류 — 일부러 틀린 것) ──
+# AnalysisException: [TABLE_OR_VIEW_NOT_FOUND] The table or view `tagz` cannot be found. Verify the spelling and correctness of the schema and catalog.
+# → TABLE_OR_VIEW_NOT_FOUND. 이름을 붙이지 않았거나(createOrReplaceTempView), 오타입니다. 인터랙티브 창을 새로
+# 열었다면 이름도 다시 붙여야 합니다.
 
 
 

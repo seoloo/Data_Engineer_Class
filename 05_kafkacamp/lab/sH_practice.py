@@ -64,51 +64,212 @@ print("chk/sH · alert_s99 비움")
 
 
 # %% [H-1] tags 에서 하차(OUT)의 요금 합계를 구하십시오. 중복(event_id)을 빼기 전과 뺀 뒤 두 숫자. (STEP 12)
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+ev = (read_topic("tags").select(F.from_json("value", SCHEMA).alias("e")).select("e.*"))
+outs = ev.filter(F.col("tag_type") == "OUT")
+print(outs.agg(F.sum("fare")).first()[0])
+print(outs.dropDuplicates(["event_id"]).agg(F.sum("fare")).first()[0])
+# ── 결과 ──
+# 1664800
+# 1651400
+# → 1,664,800 → 1,651,400. 재전송된 하차의 요금이 두 번 더해져 있었습니다. 뺀 뒤의 숫자에서 격리(S99 · 깨진 시각)까지 빼면
+# Silver 의 1,647,800 이 됩니다.
 
 
 
 
 # %% [H-2] tags 의 Kafka 파티션마다 카드가 몇 장인지, 그리고 세 파티션에 겹치는 카드가 있는지 확인하십시오. (STEP 08 · 12)
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+cards = read_topic("tags").select("partition", F.col("key").alias("card_id")).distinct()
+cards.groupBy("partition").count().orderBy("partition").show()
+print("두 파티션 이상에 나온 카드:", cards.groupBy("card_id").count().filter("count > 1").count())
+# ── 결과 ──
+# +---------+-----+
+# |partition|count|
+# +---------+-----+
+# |        0|  174|
+# |        1|  193|
+# |        2|  165|
+# +---------+-----+
+#
+# 두 파티션 이상에 나온 카드: 0
+# → 겹치는 카드 0 — 같은 키(카드)는 언제나 한 파티션에만 갑니다. 이 사실 덕분에 "카드별 순서" 를 믿을 수 있습니다.
 
 
 
 
 # %% [H-3] tags 로 하차가 가장 많은 역 세 곳을 역 이름과 함께 구하십시오. 중복 제거. (STEP 12 · 1과목 STEP 10)
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+(ev.dropDuplicates(["event_id"]).filter(F.col("tag_type") == "OUT")
+   .join(st, "station_id")
+   .groupBy("station_nm").count()
+   .orderBy(F.col("count").desc(), "station_nm")
+   .show(3))
+# ── 결과 ──
+# +----------+-----+
+# |station_nm|count|
+# +----------+-----+
+# |  홍대입구|  146|
+# |      시청|  132|
+# |    여의도|  132|
+# +----------+-----+
+# only showing top 3 rows
+# → 홍대입구 146 · 시청 132 · 여의도 132. 1과목 마무리 H-1(홍대입구 145 · 시청 132 · 여의도 131)과 1씩 다른 곳이 있는데,
+# 1과목은 격리(깨진 시각 · S99)까지 한 뒤에 셌고 여기서는 중복만 뺐기 때문입니다. 숫자가 다를 때 "어느 단계의 표로 셌나" 를 먼저 묻는 습관 —
+# 실무에서 가장 많이 쓰는 질문입니다.
 
 
 
 
 # %% [H-4] station_cnt 토픽의 JSON 을 풀어 boards 의 합계를 구하십시오. (STEP 14)
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+sc = (read_topic("station_cnt")
+      .select(F.from_json("value", "station_id STRING, boards LONG").alias("j"))
+      .select("j.*"))
+sc.agg(F.count("*").alias("rows"), F.sum("boards").alias("boards")).show()
+# ── 결과 ──
+# +----+------+
+# |rows|boards|
+# +----+------+
+# |   9|  1000|
+# +----+------+
+# → 아홉 줄, 합계 1000 = 중복을 뺀 승차 이벤트 수(S99 · 깨진 시각 포함). from_json 의 스키마는 DDL 글자로 짧게 줄 수도
+# 있습니다(1과목 STEP 07).
 
 
 
 
 # %% [H-5] win5 토픽에서 승차가 가장 많았던 5분 창 세 개를 구하십시오. (STEP 14)
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+w5 = (read_topic("win5")
+      .select(F.from_json("value", "start STRING, count LONG").alias("j"))
+      .select("j.*"))
+w5.orderBy(F.col("count").desc(), "start").show(3, truncate=False)
+# ── 결과 ──
+# +-------------------+-----+
+# |start              |count|
+# +-------------------+-----+
+# |2026-10-14 08:05:00|43   |
+# |2026-10-14 08:25:00|42   |
+# |2026-10-14 08:30:00|42   |
+# +-------------------+-----+
+# only showing top 3 rows
+# → 8시대 초반 — 1과목 12-4 의 "피크 5분" 과 같은 창입니다(중복 포함 여부에 따라 숫자가 1~2 다를 수 있음 — win5 는 중복을 빼지
+# 않았습니다).
 
 
 
 
 # %% [H-6] 파이썬 컨슈머로 gold_board 를 처음부터 읽어 pandas 표로 만들고, 노선별 승차 합계를 구하십시오. (STEP 07)
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+import pandas as pd
+c = Consumer({"bootstrap.servers": BOOT, "group.id": "gH6", "auto.offset.reset": "earliest"})
+c.subscribe(["gold_board"])
+rows, empty = [], 0
+while empty < 5:
+    m = c.poll(1.0)
+    if m is None:
+        empty += 1
+        continue
+    empty = 0
+    rows.append(json.loads(m.value()))
+c.close()
+g = pd.DataFrame(rows)
+print(g.groupby("line")["board_cnt"].sum().sort_values(ascending=False))
+# ── 결과 ──
+# line
+# 2호선    484
+# 5호선    261
+# 1호선    247
+# Name: board_cnt, dtype: int64
+# → 2호선 484 · 5호선 261 · 1호선 247 — 16-6 바꿔 보기와 같습니다. 같은 토픽을 Spark 로도, 파이썬으로도 읽을 수 있습니다.
+# 3과목에서는 이 파이썬 컨슈머가 MongoDB 에 넣습니다.
 
 
 
 
 # %% [H-7] 스트리밍 경보 — tags_live 에서 역 코드가 S99 인 태그만 골라 alert_s99 토픽에 쓰는 쿼리를 availableNow 로 돌리고, 몇 건이
 # 갔는지 세십시오. (STEP 14)
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+alerts = (spark.readStream.format("kafka")
+          .option("kafka.bootstrap.servers", BOOT)
+          .option("subscribe", "tags_live")
+          .option("startingOffsets", "earliest")
+          .load()
+          .select("key", F.col("value").cast("string").alias("value"))
+          .filter(F.from_json("value", SCHEMA)["station_id"] == "S99"))
+q = (alerts.writeStream.format("kafka")
+     .option("kafka.bootstrap.servers", BOOT)
+     .option("topic", "alert_s99")
+     .option("checkpointLocation", "chk/sH/alert")
+     .trigger(availableNow=True)
+     .start())
+q.awaitTermination()
+sum(counts("alert_s99"))
+# ── 결과 ──
+# 6
+# → 6 — 1과목의 S99 여섯 건. 원본 메시지를 그대로(key · value) 넘겼습니다. 실제 서비스라면 이 토픽을 알림 프로그램(문자 · 슬랙)이
+# 읽습니다. 걸러서 다른 토픽으로 넘기기 — 프로젝트 주제 2(이상 결제 감지)의 뼈대입니다.
 
 
 
 
 # %% [H-8] Bronze(lake/s15/bronze)에서 Kafka 파티션별 가장 큰 오프셋을 구하고, counts("tags_live") 와 비교하십시오. (STEP
 # 15)
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+(spark.read.format("delta").load("lake/s15/bronze")
+   .groupBy("partition").agg(F.max("offset").alias("max_offset"))
+   .orderBy("partition").show())
+print(counts("tags_live"))
+# ── 결과 ──
+# +---------+----------+
+# |partition|max_offset|
+# +---------+----------+
+# |        0|       685|
+# |        1|       697|
+# |        2|       623|
+# +---------+----------+
+#
+# [686, 698, 624]
+# → 가장 큰 오프셋 + 1 = 그 파티션의 메시지 수. Bronze 가 Kafka 의 마지막 메시지까지 받았다는 것을 송장으로 확인했습니다. 실무의 "데이터
+# 다 들어왔나?" 점검이 이 모양입니다.
 
 
 
 
 # %% [H-9] tags 로 1시간 창별 승차 수(중복 제거)를 구하십시오. (STEP 13 · 1과목 12-8)
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+(ev.dropDuplicates(["event_id"]).filter(F.col("tag_type") == "IN")
+   .groupBy(F.window("tag_time", "1 hour").alias("w")).count()
+   .select(F.col("w.start").alias("start"), "count")
+   .orderBy("start").show())
+# ── 결과 ──
+# +-------------------+-----+
+# |              start|count|
+# +-------------------+-----+
+# |2026-10-14 07:00:00|  299|
+# |2026-10-14 08:00:00|  450|
+# |2026-10-14 09:00:00|  249|
+# +-------------------+-----+
+# → 299 · 450 · 249 = 998. 중복을 뺀 승차 1,000 중 깨진 시각 2줄은 창을 만들 수 없어서 window 가 저절로 뺐습니다. 배치에서는
+# 워터마크가 필요 없습니다 — 데이터가 다 있으니 창을 언제 닫을지 고민할 필요가 없기 때문입니다.
 
 
 
 
 # %% [H-10] 파이썬 프로듀서(murmur2)로 키 C0401 의 시험 메시지를 alert_s99 에 하나 보내고, 몇 번 파티션에 갔는지와 tags 에서 C0401 이
 # 있는 파티션이 같은지 보십시오. (STEP 08)
+# [보충] 수업 시간에 넘어간 셀 — answer 정답을 기준으로 채웠습니다. 아래 결과는 직접 실행한 값이 아니라 정답 파일의 기대 출력입니다.
+p = Producer({"bootstrap.servers": BOOT, "partitioner": "murmur2_random"})
+got = []
+p.produce("alert_s99", key="C0401", value="test", on_delivery=lambda e, m: got.append(m.partition()))
+p.flush()
+print("alert_s99 :", got[0], "/ 파티션 수", len(counts("alert_s99")))
+print("tags      :", read_topic("tags").filter("key = 'C0401'").select("partition").distinct().first()[0], "/ 파티션 수", len(counts("tags")))
+# ── 결과 ──
+# alert_s99 : 0 / 파티션 수 1
+# tags      : 1 / 파티션 수 3
+# → alert_s99 는 Spark 가 쓰면서 자동으로 만든 토픽이라 파티션 1개 — 그래서 무조건 0 번입니다. tags 는 3개라 C0401 은 다른
+# 번호일 수 있습니다. 같은 키라도 파티션 수가 다르면 번호가 다릅니다(04-11). 결과 토픽도 미리 같은 파티션 수로 만들어 두면 "같은 카드는 같은 번호"
+# 가 토픽을 넘어서도 지켜집니다.
+
